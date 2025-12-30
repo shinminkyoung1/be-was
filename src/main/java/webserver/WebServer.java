@@ -13,7 +13,7 @@ public class WebServer {
     private static final int DEFAULT_PORT = 8080;
 
     // 스레드 풀 생성 (최대 10개 스레드 유지)
-    private static final ExecutorService executorService = Executors.newFixedThreadPool(10);
+    private static final ExecutorService executorService = Executors.newFixedThreadPool(2);
 
     public static void main(String args[]) throws Exception {
         int port = 0;
