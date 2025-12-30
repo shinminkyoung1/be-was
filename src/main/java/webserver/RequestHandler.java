@@ -21,52 +21,22 @@ public class RequestHandler implements Runnable {
                 connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            // OutputStream을 문자열로 읽기 위한 보조 스트림 연결
-            BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+            // 요청 객체 생성
+            HttpRequest request = new HttpRequest(in);
 
-            // HTTP 요청의 첫 번째 줄 읽음
-            String line = br.readLine();
-            if (line == null) {return;}
-            logger.debug("Request Line: {}", line);
+            // 응답 객체 생성
+            HttpResponse response = new HttpResponse(out);
 
-            String url = utils.HttpRequestUtils.parseUrl(line);
-
-            // 나머지 헤더 정보 읽음
-            while (!line.equals("")) {
-                line = br.readLine();
-                if (line == null) break;
-                logger.debug("Header: {}", line);
-            }
+            String url = request.getUrl();
+            if (url == null) return;
 
             // 기본 값 설정
             if (url.equals("/")) {
                 url = "/index.html";
             }
 
-            byte[] body = java.nio.file.Files.readAllBytes(new File("./src/main/resources/static" + url).toPath());
-            DataOutputStream dos = new DataOutputStream(out);
-            response200Header(dos, body.length);
-            responseBody(dos, body);
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-    }
+            response.fileResponse(url);
 
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
-        try {
-            dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-    }
-
-    private void responseBody(DataOutputStream dos, byte[] body) {
-        try {
-            dos.write(body, 0, body.length);
-            dos.flush();
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
