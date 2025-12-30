@@ -29,6 +29,8 @@ public class RequestHandler implements Runnable {
             if (line == null) {return;}
             logger.debug("Request Line: {}", line);
 
+            String url = utils.HttpRequestUtils.parseUrl(line);
+
             // 나머지 헤더 정보 읽음
             while (!line.equals("")) {
                 line = br.readLine();
@@ -36,8 +38,13 @@ public class RequestHandler implements Runnable {
                 logger.debug("Header: {}", line);
             }
 
+            // 기본 값 설정
+            if (url.equals("/")) {
+                url = "/index.html";
+            }
+
+            byte[] body = java.nio.file.Files.readAllBytes(new File("./src/main/resources/static" + url).toPath());
             DataOutputStream dos = new DataOutputStream(out);
-            byte[] body = "<h1>Hello World</h1>".getBytes();
             response200Header(dos, body.length);
             responseBody(dos, body);
         } catch (IOException e) {
