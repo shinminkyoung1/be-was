@@ -32,9 +32,7 @@ public class HttpRequest {
         this.url = HttpRequestUtils.parseUrl(line);
 
         // 나머지 헤더 정보 읽음
-        while (line.equals("")) {
-            line = br.readLine();
-            if (line == null) break;
+        while ((line = br.readLine()) != null && !line.isEmpty()) {
             logger.debug("Header: {}", line);
         }
     }
