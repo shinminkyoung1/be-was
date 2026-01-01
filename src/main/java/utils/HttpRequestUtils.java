@@ -71,7 +71,14 @@ public class HttpRequestUtils {
             // =를 기준으로 key와 value를 분리
             String[] tokens = pair.split("=");
             if (tokens.length == 2) {
-                params.put(tokens[0], tokens[1]);
+                try {
+                    // URL 디코딩 처리
+                    String key = tokens[0];
+                    String value = java.net.URLDecoder.decode(tokens[1], "UTF-8");
+                    params.put(key, value);
+                } catch (java.io.UnsupportedEncodingException e) {
+                    logger.error("'Decoding error: {}", e.getMessage());
+                }
             }
         }
         return params;

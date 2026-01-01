@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
+import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +37,35 @@ public class RequestHandler implements Runnable {
             }
 
             response.fileResponse(url);
+
+            String path = request.getPath();
+            if (path == null) {
+                return;
+            }
+
+            // 회원가입
+            if (path.equals("/user/create") || path.equals("/create")) {
+                // request에 파싱되어 있는 params에서 데이터 추출
+                User user = new User(
+                        request.getParameter("userId"),
+                        request.getParameter("password"),
+                        request.getParameter("name"),
+                        request.getParameter("email")
+                );
+
+                // db에 저장
+                db.Database.addUser(user);
+                logger.debug("Saved User: {}", user);
+
+                // 가입 후 이동할 곳
+                path = "/index.html"; // 기본 설정
+
+                if (path.equals("/")) {
+                    path = "/index.html";
+                }
+
+                response.fileResponse(path);
+            }
 
         } catch (IOException e) {
             logger.error(e.getMessage());

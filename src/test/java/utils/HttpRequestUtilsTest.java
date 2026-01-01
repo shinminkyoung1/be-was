@@ -1,5 +1,6 @@
 package utils;
 
+import model.User;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -74,5 +75,36 @@ class HttpRequestUtilsTest {
         assertThat(params.get("userId")).isEqualTo("javajava");
         assertThat(params.get("password")).isEqualTo("password");
         assertThat(params.get("name")).isEqualTo("shin");
+    }
+
+    // 인코딩된 쿼리스트링 디코딩 후 파싱
+    @Test
+    void parseEncodeQueryString() {
+        String queryString = "userId=javajigi&name=%EB%B0%95%EC%9E%AC%EC%84%B1";
+
+        Map<String, String> params = HttpRequestUtils.parseParameters(queryString);
+
+        assertThat(params.get("userId")).isEqualTo("javajigi");
+        assertThat(params.get("name")).isEqualTo("박재성");
+    }
+
+    // User 저장
+    @Test
+    void saveDeccoderUser() {
+        String queryString = "userId=javajigi&name=%EB%B0%95%EC%9E%AC%EC%84%B1";
+        Map<String, String> params = HttpRequestUtils.parseParameters(queryString);
+
+        // User 객체 생성 및 저장
+        User user = new User(
+                params.get("userId"),
+                params.get("password"),
+                params.get("name"),
+                params.get("email")
+        );
+        db.Database.addUser(user);
+
+        User savedUser = db.Database.findUserById("javajigi");
+        assertThat(savedUser.userId()).isEqualTo("javajigi");
+        assertThat(savedUser.name()).isEqualTo("박재성");
     }
 }
