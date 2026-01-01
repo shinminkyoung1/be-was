@@ -28,19 +28,17 @@ public class RequestHandler implements Runnable {
             // 응답 객체 생성
             HttpResponse response = new HttpResponse(out);
 
-            String url = request.getUrl();
-            if (url == null) return;
-
-            // 기본 값 설정
-            if (url.equals("/")) {
-                url = "/index.html";
-            }
-
-            response.fileResponse(url);
-
             String path = request.getPath();
             if (path == null) {
                 return;
+            }
+
+            if (path.equals("/") || path.isEmpty()) {
+                path = "/index.html";
+            }
+
+            if (path.equals("/registration")) {
+                path = "/registration/index.html";
             }
 
             // 회원가입
@@ -59,13 +57,8 @@ public class RequestHandler implements Runnable {
 
                 // 가입 후 이동할 곳
                 path = "/index.html"; // 기본 설정
-
-                if (path.equals("/")) {
-                    path = "/index.html";
-                }
-
-                response.fileResponse(path);
             }
+            response.fileResponse(path);
 
         } catch (IOException e) {
             logger.error(e.getMessage());
