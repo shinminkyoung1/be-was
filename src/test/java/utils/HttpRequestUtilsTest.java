@@ -2,6 +2,8 @@ package utils;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Map;
+
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -43,5 +45,34 @@ class HttpRequestUtilsTest {
         // null 또는 빈 문자열
         assertEquals("", HttpRequestUtils.getFileExtension(null));
         assertEquals("", HttpRequestUtils.getFileExtension(""));
+    }
+
+    // Url에서 path와 queryString 분리
+    @Test
+    void parseUrlParts() {
+        String url = "/user/create?userId=javajava&name=shin";
+
+        assertThat(HttpRequestUtils.parsePath(url)).isEqualTo("/user/create");
+        assertThat(HttpRequestUtils.parseQueryString(url)).isEqualTo("userId=javajava&name=shin");
+    }
+
+    // queryString이 없는 URL인 경우 path는 그대로, queryString은 null 반환
+    @Test
+    void parseUrlWithoutQueryString() {
+        String url = "/index.html";
+
+        assertThat(HttpRequestUtils.parsePath(url)).isEqualTo("/index.html");
+        assertThat(HttpRequestUtils.parseQueryString(url)).isNull();
+    }
+
+    // 쿼리스트링 Map 구조 변환
+    @Test
+    void parseQueryString() {
+        String queryString = "userId=javajava&password=password&name=shin";
+        Map<String, String> params = HttpRequestUtils.parseParameters(queryString);
+
+        assertThat(params.get("userId")).isEqualTo("javajava");
+        assertThat(params.get("password")).isEqualTo("password");
+        assertThat(params.get("name")).isEqualTo("shin");
     }
 }
