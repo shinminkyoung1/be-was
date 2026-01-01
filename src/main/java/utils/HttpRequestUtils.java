@@ -19,4 +19,20 @@ public class HttpRequestUtils {
 
         return tokens[1];
     }
+
+    public static String getFileExtension(String url) {
+        if (url == null || url.isEmpty()) {
+            return "";
+        }
+
+        // 쿼리 스트링 제거
+        String path = url.split("\\?")[0];
+        // 마지막 . 위치 찾음
+        int lastDotIndex = path.lastIndexOf('.');
+        // 확장자 없거나 마지막이 . 인 경우 예외 처리
+        if (lastDotIndex == -1 || lastDotIndex == path.length() - 1) {
+            return "";
+        }
+        return path.substring(lastDotIndex + 1);
+    }
 }
