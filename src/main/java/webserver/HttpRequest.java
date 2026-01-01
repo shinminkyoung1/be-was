@@ -17,6 +17,7 @@ public class HttpRequest {
 
     private String method;
     private String url;
+    private String protocol;
     private Map<String, String> headers = new HashMap<>();
 
     public HttpRequest(InputStream in) throws IOException {
@@ -28,8 +29,13 @@ public class HttpRequest {
         if (line == null) return;
         logger.debug("Request Line: {}", line);
 
-        // URL 파싱
-        this.url = HttpRequestUtils.parseUrl(line);
+        // 공백을 기준으로 헤더에서 첫 줄 분리한 후 필드에 할당
+        String[] tokens = line.split(" ");
+        if (tokens.length >= 3) {
+            this.method = tokens[0];
+            this.url = tokens[1];
+            this.protocol = tokens[2];
+        }
 
         // 나머지 헤더 정보 읽음
         while ((line = br.readLine()) != null && !line.isEmpty()) {
@@ -37,6 +43,9 @@ public class HttpRequest {
         }
     }
 
+    public String getMethod() {
+        return method;
+    }
     public String getUrl() {
         return url;
     }
