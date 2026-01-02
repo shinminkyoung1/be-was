@@ -20,26 +20,53 @@ public class HttpResponse {
 
     public void fileResponse(String url) {
         try {
-            // URL에서 확장자 추출
-            String extension = HttpRequestUtils.getFileExtension(url);
+            File file = new File("./src/main/resources/static" + url);
 
-            // 확장자에 맞는 MIME 타입 결정
-            String contentType = MimeType.getContentType(extension);
+            // 파일 존재 여부 확인 후 존재하지 않으면 404 응답 호출
+            if (!file.exists() || file.isDirectory()) {
+                send404Response();
+                return;
+            }
 
-            // URL 기반 파일 읽기
-            byte[] body = Files.readAllBytes(new File("./src/main/resources/static" + url).toPath());
+            byte[] body = Files.readAllBytes(file.toPath());
+            String contentType = MimeType.getContentType(HttpRequestUtils.getFileExtension(url));
 
-            // response200Header 내용
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: " + contentType + "\r\n");
+            dos.writeBytes("Content-Type: " + contentType + ";charset=utf-8\r\n");
             dos.writeBytes("Content-Length: " + body.length + "\r\n");
             dos.writeBytes("\r\n");
 
-            // responseBody 내용
             dos.write(body, 0, body.length);
             dos.flush();
         } catch (IOException e) {
-            logger.error(e.getMessage());
+            logger.error("Error while serving file {}: {}", url, e.getMessage());
+        }
+    }
+
+    // 2. 302 Found 응답 (리다이렉트)
+    public void sendRedirect(String redirectUrl) {
+        try {
+            dos.writeBytes("HTTP/1.1 302 Found \r\n");
+            dos.writeBytes("Location: " + redirectUrl + "\r\n");
+            dos.writeBytes("\r\n");
+            dos.flush();
+        } catch (IOException e) {
+            logger.error("Redirect Error: {}", e.getMessage());
+        }
+    }
+
+    // 3. 404 Not Found 응답
+    public void send404Response() {
+        try {
+            byte[] body = "404 File Not Found".getBytes();
+            dos.writeBytes("HTTP/1.1 404 Not Found \r\n");
+            dos.writeBytes("Content-Type: text/plain;charset=utf-8\r\n");
+            dos.writeBytes("Content-Length: " + body.length + "\r\n");
+            dos.writeBytes("\r\n");
+            dos.write(body, 0, body.length);
+            dos.flush();
+        } catch (IOException e) {
+            logger.error("404 Response Error: {}", e.getMessage());
         }
     }
 }
