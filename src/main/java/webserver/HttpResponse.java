@@ -8,6 +8,7 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
 
 public class HttpResponse {
     public static final Logger logger = LoggerFactory.getLogger(HttpResponse.class);
@@ -26,7 +27,7 @@ public class HttpResponse {
             String contentType = MimeType.getContentType(extension);
 
             // URL 기반 파일 읽기
-            byte[] body = java.nio.file.Files.readAllBytes(new File("./src/main/resources/static" + url).toPath());
+            byte[] body = Files.readAllBytes(new File("./src/main/resources/static" + url).toPath());
 
             // response200Header 내용
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
