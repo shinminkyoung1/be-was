@@ -90,7 +90,7 @@ class HttpRequestUtilsTest {
 
     // User 저장
     @Test
-    void saveDeccoderUser() {
+    void saveDecoderUser() {
         String queryString = "userId=javajigi&name=%EB%B0%95%EC%9E%AC%EC%84%B1";
         Map<String, String> params = HttpRequestUtils.parseParameters(queryString);
 
