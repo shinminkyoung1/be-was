@@ -34,11 +34,11 @@ public class RequestHandler implements Runnable {
             }
 
             if (path.equals("/") || path.isEmpty()) {
-                path = "/index.html";
+                path = Config.DEFAULT_PAGE;
             }
 
             if (path.equals("/registration")) {
-                path = "/registration/index.html";
+                path = Config.REGISTRATION_PAGE;
             }
 
             // 회원가입
