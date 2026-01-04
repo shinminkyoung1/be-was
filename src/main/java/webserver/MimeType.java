@@ -3,7 +3,7 @@ package webserver;
 import java.util.Arrays;
 
 public enum MimeType {
-    HTML("html", "text/html;charset=utf-8"),
+    HTML("html", "text/html"),
     CSS("css", "text/css"),
     JS("js", "application/javascript"),
     ICO("ico", "image/x-icon"),
