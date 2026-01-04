@@ -33,35 +33,29 @@ public class RequestHandler implements Runnable {
                 return;
             }
 
-            if (path.equals("/") || path.isEmpty()) {
-                path = Config.DEFAULT_PAGE;
+            // 경로에 맞는 핸들러 있는지 확인
+            Handler handler = RouteGuide.findHandler(path);
+
+            if (handler != null) {
+                // 핸들러 있으면 해당 로직 수행
+                handler.process(request, response);
+            } else {
+                // 없으면 정적 파일 서빙
+                response.fileResponse(resolveStaticPath(path));
             }
-
-            if (path.equals("/registration")) {
-                path = Config.REGISTRATION_PAGE;
-            }
-
-            // 회원가입
-            if (path.equals("/user/create") || path.equals("/create")) {
-                // request에 파싱되어 있는 params에서 데이터 추출
-                User user = new User(
-                        request.getParameter("userId"),
-                        request.getParameter("password"),
-                        request.getParameter("name"),
-                        request.getParameter("email")
-                );
-
-                // db에 저장
-                db.Database.addUser(user);
-                logger.debug("Saved User: {}", user);
-
-                // 가입 후 이동할 곳
-                path = "/index.html"; // 기본 설정
-            }
-            response.fileResponse(path);
 
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
+    }
+
+    private String resolveStaticPath(String path) {
+        if (path.equals("/") || path.isEmpty()) {
+            return Config.DEFAULT_PAGE;
+        }
+        if (path.equals("/registration")) {
+            return Config.REGISTRATION_PAGE;
+        }
+        return path;
     }
 }
