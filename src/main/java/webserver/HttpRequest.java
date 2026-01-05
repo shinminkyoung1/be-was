@@ -40,6 +40,14 @@ public class HttpRequest {
             logger.debug("Header: {}", line);
             parseHeader(line);
         }
+
+        if (this.method.equals("POST") && contentLength > 0) {
+            String body = utils.IOUtils.readData(br, contentLength);
+            logger.debug("POST Body: {}", body);
+
+            Map<String, String> bodyParams = HttpRequestUtils.parseParameters(body);
+            this.params.putAll(bodyParams);
+        }
     }
 
     private void parseRequestLine(String line) {
