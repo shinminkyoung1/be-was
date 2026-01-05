@@ -71,6 +71,14 @@ public class HttpResponse {
         writeResponse(HttpStatus.FOUND, new byte[0]); // 바디 없음
     }
 
+    // 403 Forbidden 응답 처리
+    public void send403Response() {
+        byte[] body = "403 Forbidden: Access Denied".getBytes(StandardCharsets.UTF_8);
+        addHeader("Content-Type", "text/plain;charset=" + Config.UTF_8);
+        addHeader("Content-Length", String.valueOf(body.length));
+        writeResponse(HttpStatus.FORBIDDEN, body);
+    }
+
     // 공통 응답 작성 로직
     private void writeResponse(HttpStatus status, byte[] body) {
         try {
