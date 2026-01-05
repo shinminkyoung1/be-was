@@ -23,33 +23,43 @@ public class HttpRequest {
     private Map<String, String> headers = new HashMap<>();
     private Map<String, String> params = new HashMap<>();
 
+    // 바디 길이를 저장
+    private int contentLength = 0;
+
     public HttpRequest(InputStream in) throws IOException {
-        // OutputStream을 문자열로 읽기 위한 보조 스트림 연결
         BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
 
-        // HTTP 요청의 첫 번째 줄 읽음
         String line = br.readLine();
         if (line == null) return;
-        logger.debug("Request Line: {}", line);
 
-        // 공백을 기준으로 헤더에서 첫 줄 분리한 후 필드에 할당
+        // Request Line 파싱
+        parseRequestLine(line);
+
+        // 나머지 헤더 정보 읽음
+        while ((line = br.readLine()) != null && !line.isEmpty()) {
+            logger.debug("Header: {}", line);
+            parseHeader(line);
+        }
+    }
+
+    private void parseRequestLine(String line) {
         String[] tokens = line.split(" ");
         if (tokens.length >= 3) {
             this.method = tokens[0];
             this.url = tokens[1];
             this.protocol = tokens[2];
-
-            // path와 queryString 분리 저장
             this.path = HttpRequestUtils.parsePath(this.url);
             this.queryString = HttpRequestUtils.parseQueryString(this.url);
-
-            // queryString을 파싱하여 Map으로 변환
             this.params = HttpRequestUtils.parseParameters(this.queryString);
         }
+    }
 
-        // 나머지 헤더 정보 읽음
-        while ((line = br.readLine()) != null && !line.isEmpty()) {
-            logger.debug("Header: {}", line);
+    private void parseHeader(String line) {
+        String[] headerTokens = line.split(": ");
+        if (headerTokens.length == 2) {
+            String key = headerTokens[0].trim();
+            String value = headerTokens[1].trim();
+            headers.put(key, value);
         }
     }
 
