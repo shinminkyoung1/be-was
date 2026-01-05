@@ -60,6 +60,11 @@ public class HttpRequest {
             String key = headerTokens[0].trim();
             String value = headerTokens[1].trim();
             headers.put(key, value);
+
+            // Content-Length 파싱 후 변수 저장
+            if ("Content-Length".equalsIgnoreCase(key)) {
+                this.contentLength = Integer.parseInt(value);
+            }
         }
     }
 
@@ -78,4 +83,5 @@ public class HttpRequest {
     public String getParameter(String name) {
         return params.get(name);
     }
+    public int getContentLength() { return contentLength; }
 }
