@@ -40,11 +40,6 @@ public class HttpRequest {
             logger.debug("Header: {}", line);
             parseHeader(line);
         }
-
-        // POST 요청인 경우 Content-Length 값 확인
-        if (this.method.equals("POST")) {
-            logger.debug("POST Request Body Length: {}", this.contentLength);
-        }
     }
 
     private void parseRequestLine(String line) {
