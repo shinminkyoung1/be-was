@@ -1,5 +1,7 @@
 package webserver;
 
+import java.nio.charset.StandardCharsets;
+
 public enum HttpStatus {
     OK(200, "OK"),
     FOUND(302, "Found"),
@@ -15,10 +17,14 @@ public enum HttpStatus {
         this.message = message;
     }
 
+    public byte[] getErrorMessageBytes() {
+        String bodyText = this.code + " " + this.message + ": Access Denied or Resource Not Found.";
+        return bodyText.getBytes(StandardCharsets.UTF_8);
+    }
+
     public int getCode() {
         return code;
     }
-
     public String getMessage() {
         return message;
     }

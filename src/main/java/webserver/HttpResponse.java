@@ -28,12 +28,22 @@ public class HttpResponse {
         headers.put(key, value);
     }
 
-    public void fileResponse(String url) {
-        File file = new File(Config.STATIC_RESOURCE_PATH + url);
+    public void sendError(HttpStatus status) {
+        byte[] body = status.getErrorMessageBytes();
+        addHeader("Content-Type", "text/plain;charset=" + Config.UTF_8);
+        addHeader("Content-Length", String.valueOf(body.length));
+        writeResponse(status, body);
+    }
 
-        // 파일 존재 여부 확인 후 존재하지 않으면 404 응답 호출
+    public void sendRedirect(String redirectUrl) {
+        addHeader("Location", redirectUrl);
+        writeResponse(HttpStatus.FOUND, new byte[0]); // 바디 없음
+    }
+
+    public void fileResponse(String url) {
+        File file = new File(Config.STATIC_RESOURCE_PATH);
         if (!file.exists() || file.isDirectory()) {
-            send404Response();
+            sendError(HttpStatus.NOT_FOUND);
             return;
         }
 
@@ -42,41 +52,11 @@ public class HttpResponse {
             addHeader("Content-Type", MimeType.getContentType(HttpRequestUtils.getFileExtension(url)) + ";charset=" + Config.UTF_8);
             addHeader("Content-Length", String.valueOf(body.length));
 
-            writeResponse(HttpStatus.OK, body); // 공통 메서드로 추출
+            writeResponse(HttpStatus.OK, body);
         } catch (IOException e) {
             logger.error("Error while serving file {}: {}", url, e.getMessage());
-            send500Response();
+            sendError(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
-
-    // 404 Not Found 응답 처리
-    public void send404Response() {
-        byte[] body = "404 File Not Found".getBytes(StandardCharsets.UTF_8);
-        addHeader("Content-Type", "text/plain;charset=" + Config.UTF_8);
-        addHeader("Content-Length", String.valueOf(body.length));
-        writeResponse(HttpStatus.NOT_FOUND, body);
-    }
-
-    // 500 Internal Server Error 응답 처리
-    public void send500Response() {
-        byte[] body = "500 Internal Server Error".getBytes(StandardCharsets.UTF_8);
-        addHeader("Content-Type", "text/plain;charset=" + Config.UTF_8);
-        addHeader("Content-Length", String.valueOf(body.length));
-        writeResponse(HttpStatus.INTERNAL_SERVER_ERROR, body);
-    }
-
-    // 302 Found 응답 처리
-    public void sendRedirect(String redirectUrl) {
-        addHeader("Location", redirectUrl);
-        writeResponse(HttpStatus.FOUND, new byte[0]); // 바디 없음
-    }
-
-    // 403 Forbidden 응답 처리
-    public void send403Response() {
-        byte[] body = "403 Forbidden: Access Denied".getBytes(StandardCharsets.UTF_8);
-        addHeader("Content-Type", "text/plain;charset=" + Config.UTF_8);
-        addHeader("Content-Length", String.valueOf(body.length));
-        writeResponse(HttpStatus.FORBIDDEN, body);
     }
 
     // 공통 응답 작성 로직
