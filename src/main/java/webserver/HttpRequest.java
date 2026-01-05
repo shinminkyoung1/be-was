@@ -68,15 +68,19 @@ public class HttpRequest {
     }
 
     private void parseHeader(String line) {
-        String[] headerTokens = line.indexOf(":");
-        if (headerTokens.length == 2) {
-            String key = headerTokens[0].trim();
-            String value = headerTokens[1].trim();
+        int index = line.indexOf(":");
+        if (index != -1) {
+            String key = line.substring(0, index).trim();
+            String value = line.substring(index + 1).trim();
             headers.put(key, value);
 
-            // Content-Length 파싱 후 변수 저장
             if ("Content-Length".equalsIgnoreCase(key)) {
-                this.contentLength = Integer.parseInt(value);
+                try {
+                    this.contentLength = Integer.parseInt(value);
+                } catch (NumberFormatException e) {
+                    this.contentLength = 0;
+                    logger.warn("Invalid Content-Length value: {}", value);
+                }
             }
         }
     }
