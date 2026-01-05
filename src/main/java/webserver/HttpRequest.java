@@ -42,11 +42,16 @@ public class HttpRequest {
         }
 
         if (this.method.equals("POST") && contentLength > 0) {
-            String body = utils.IOUtils.readData(br, contentLength);
-            logger.debug("POST Body: {}", body);
+            try {
+                String body = utils.IOUtils.readData(br, contentLength);
+                logger.debug("POST Body: {}", body);
 
-            Map<String, String> bodyParams = HttpRequestUtils.parseParameters(body);
-            this.params.putAll(bodyParams);
+                Map<String, String> bodyParams = HttpRequestUtils.parseParameters(body);
+                this.params.putAll(bodyParams);
+            } catch (IOException e) {
+                logger.error("Failed to read POST body: {}", e.getMessage());
+                throw new IOException("Incomplete POST body data", e);
+            }
         }
     }
 
@@ -63,7 +68,7 @@ public class HttpRequest {
     }
 
     private void parseHeader(String line) {
-        String[] headerTokens = line.split(": ");
+        String[] headerTokens = line.indexOf(":");
         if (headerTokens.length == 2) {
             String key = headerTokens[0].trim();
             String value = headerTokens[1].trim();
