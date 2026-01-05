@@ -10,6 +10,12 @@ public class UserRequestHandler implements Handler{
 
     @Override
     public void process(HttpRequest request, HttpResponse response) {
+        // POST 메서드 검증 로직
+        if (!"POST".equalsIgnoreCase(request.getMethod())) {
+            logger.warn("Invalid request method: {}. Only POST is allowed for registration.", request.getMethod());
+            response.send404Response();
+            return;
+        }
         User user = new User(
                 request.getParameter("userId"),
                 request.getParameter("password"),
