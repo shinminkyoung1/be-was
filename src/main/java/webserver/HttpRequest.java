@@ -27,30 +27,49 @@ public class HttpRequest {
         // OutputStream을 문자열로 읽기 위한 보조 스트림 연결
         BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
 
-        // HTTP 요청의 첫 번째 줄 읽음
+        // Request Line 파싱
         String line = br.readLine();
         if (line == null) return;
         logger.debug("Request Line: {}", line);
+        parseRequestLine(line);
 
-        // 공백을 기준으로 헤더에서 첫 줄 분리한 후 필드에 할당
+        // Headers 파싱 및 저장 (Keep-Alive 판단 위함)
+        while ((line = br.readLine()) != null && !line.isEmpty()) {
+            logger.debug("Header: {}", line);
+            parseHeader(line);
+        }
+    }
+
+    private void parseRequestLine(String line) {
         String[] tokens = line.split(" ");
         if (tokens.length >= 3) {
             this.method = tokens[0];
             this.url = tokens[1];
             this.protocol = tokens[2];
 
-            // path와 queryString 분리 저장
             this.path = HttpRequestUtils.parsePath(this.url);
             this.queryString = HttpRequestUtils.parseQueryString(this.url);
-
-            // queryString을 파싱하여 Map으로 변환
             this.params = HttpRequestUtils.parseParameters(this.queryString);
         }
+    }
 
-        // 나머지 헤더 정보 읽음
-        while ((line = br.readLine()) != null && !line.isEmpty()) {
-            logger.debug("Header: {}", line);
+    private void parseHeader(String line) {
+        // key-value 형태로 분리
+        int index = line.indexOf(Config.HEADER_DELIMITER);
+        if (index != -1) {
+            String key = line.substring(0, index).trim();
+            String value = line.substring(index + 2).trim();
+            headers.put(key, value);
         }
+    }
+
+    // Connection 헤더 확인
+    public boolean isKeepAlive() {
+        return "keep-alive".equalsIgnoreCase(headers.get("Connection"));
+    }
+
+    public String getHeader(String name) {
+        return headers.get(name);
     }
 
     public String getMethod() {
