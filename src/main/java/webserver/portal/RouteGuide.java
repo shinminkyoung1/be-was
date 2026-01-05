@@ -1,6 +1,4 @@
-package webserver;
-
-import model.User;
+package webserver.portal;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package webserver;
+package webserver.meta;
 
 import java.nio.charset.StandardCharsets;
 

@@ -1,4 +1,4 @@
-package webserver;
+package webserver.meta;
 
 public class Config {
     public static final String STATIC_RESOURCE_PATH = "./src/main/resources/static";

@@ -1,6 +1,8 @@
 package webserver;
 
 import org.junit.jupiter.api.Test;
+import webserver.meta.MimeType;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MimeTypeTest {

@@ -1,6 +1,6 @@
 package exception;
 
-import webserver.HttpStatus;
+import webserver.meta.HttpStatus;
 
 public class WebsServerException extends RuntimeException {
     private final HttpStatus status;
