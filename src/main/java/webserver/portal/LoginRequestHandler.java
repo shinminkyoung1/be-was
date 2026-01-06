@@ -7,14 +7,15 @@ import org.slf4j.LoggerFactory;
 import webserver.engine.HttpRequest;
 import webserver.engine.HttpResponse;
 import webserver.engine.SessionManager;
+import webserver.meta.Config;
 import webserver.meta.HttpStatus;
 
 public class LoginRequestHandler implements Handler {
     private static final Logger logger = LoggerFactory.getLogger(LoginRequestHandler.class);
 
     @Override
-    public void handle(HttpRequest request, HttpResponse response) {
-        if (!"POST".equalsIgnoreCase(request.getMethod()) {
+    public void process(HttpRequest request, HttpResponse response) {
+        if (!"POST".equalsIgnoreCase(request.getMethod())) {
             response.sendError(HttpStatus.METHOD_NOT_ALLOWED);
             return;
         }
@@ -42,7 +43,7 @@ public class LoginRequestHandler implements Handler {
 
     private void loginFailed(HttpResponse response) {
         logger.debug("Login Failed");
-        response.sendRedirect("/");
+        response.sendRedirect(Config.LOGIN_PAGE);
 
     }
 }
