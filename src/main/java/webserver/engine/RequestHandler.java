@@ -3,6 +3,7 @@ package webserver.engine;
 import java.io.*;
 import java.net.Socket;
 
+import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.meta.Config;
@@ -30,13 +31,18 @@ public class RequestHandler implements Runnable {
             HttpResponse response = new HttpResponse(out);
 
             String sid = request.getCookie("sid");
-            db.SessionEntry entry = db.SessionDatabase.find(sid);
 
-            if (entry != null) {
-                model.User loginUser = entry.getUser();
-                logger.debug("Authorized User: {} ({})", loginUser.name(), loginUser.userId());
+            if (sid != null) {
+                db.SessionEntry entry = db.SessionDatabase.find(sid);
+
+                if (entry != null) {
+                    User loginUser = entry.getUser();
+                    logger.debug("Authorized User: {} ({})", loginUser.name(), loginUser.userId());
+                } else {
+                    logger.debug("Anonymous User Request");
+                }
             } else {
-                logger.debug("Anonymous User Request");
+                logger.debug("Anonymous User Request  (No SID)");
             }
 
             String path = request.getPath();

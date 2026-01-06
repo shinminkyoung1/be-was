@@ -12,6 +12,7 @@ public class SessionDatabase {
     }
 
     public static SessionEntry find(String sessionId) {
+        if (sessionId == null) return null;
         return sessions.get(sessionId);
     }
 
