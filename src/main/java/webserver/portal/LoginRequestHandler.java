@@ -16,6 +16,7 @@ public class LoginRequestHandler implements Handler {
     @Override
     public void process(HttpRequest request, HttpResponse response) {
         if (!"POST".equalsIgnoreCase(request.getMethod())) {
+            logger.warn("Invalid request method: {}. Only POST is allowed for login", request.getMethod());
             response.sendError(HttpStatus.METHOD_NOT_ALLOWED);
             return;
         }

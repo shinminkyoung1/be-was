@@ -12,7 +12,6 @@ public class RouteGuide {
         Handler loginHandler = new LoginRequestHandler();
         // 회원가입
         mappings.put("/user/create", userHandler);
-        mappings.put("/create", userHandler);
         // 로그인
         mappings.put("/user/login", loginHandler);
     }
