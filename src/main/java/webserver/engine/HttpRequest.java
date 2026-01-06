@@ -41,16 +41,16 @@ public class HttpRequest {
             parseHeader(line);
         }
 
-        if (this.method.equals("POST") && contentLength > 0) {
+        if ((hasRequestBody() && contentLength > 0) {
             try {
                 String body = utils.IOUtils.readData(br, contentLength);
-                logger.debug("POST Body: {}", body);
+                logger.debug("{} Body: {}", this.method, body);
 
                 Map<String, String> bodyParams = HttpRequestUtils.parseParameters(body);
                 this.params.putAll(bodyParams);
             } catch (IOException e) {
-                logger.error("Failed to read POST body: {}", e.getMessage());
-                throw new IOException("Incomplete POST body data", e);
+                logger.error("Failed to read {} body: {}", this.method, e.getMessage());
+                throw new IOException("Incomplete " + this.method +  " body data", e);
             }
         }
     }
@@ -83,6 +83,10 @@ public class HttpRequest {
                 }
             }
         }
+    }
+
+    private boolean hasRequestBody() {
+        return "POST".equalsIgnoreCase(this.method) || "PUT".equalsIgnoreCase(this.method) || "PATCH".equalsIgnoreCase(this.method);
     }
 
     public String getMethod() {
