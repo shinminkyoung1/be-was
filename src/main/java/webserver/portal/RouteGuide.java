@@ -9,8 +9,12 @@ public class RouteGuide {
     static {
         // 경로와 연결
         Handler userHandler = new UserRequestHandler();
+        Handler loginHandler = new LoginRequestHandler();
+        // 회원가입
         mappings.put("/user/create", userHandler);
         mappings.put("/create", userHandler);
+        // 로그인
+        mappings.put("/user/login", loginHandler);
     }
 
     public static Handler findHandler(String path) {
