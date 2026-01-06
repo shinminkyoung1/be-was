@@ -33,6 +33,8 @@ public class LoginRequestHandler implements Handler {
         // 유저 없는 경우 로그인 실패
         if (user == null) {
             logger.debug("Login Failed: User ID '{}' not found in Database", userId);
+            // 알림을 위한 커스텀 헤더
+            response.addHeader("Set-Cookie", "login_error=true; Path=/; Max-Age=5"); // 5초만 유지
             response.sendRedirect(Config.LOGIN_PAGE);
             return;
         }
@@ -42,6 +44,7 @@ public class LoginRequestHandler implements Handler {
             loginSuccess(user, response);
         } else {
             logger.debug("Login Failed: Wrong password for user '{}'", userId);
+            response.addHeader("Set-Cookie", "login_error=true; Path=/; Max-Age=5"); // 5초만 유지
             response.sendRedirect(Config.LOGIN_PAGE);
         }
     }
