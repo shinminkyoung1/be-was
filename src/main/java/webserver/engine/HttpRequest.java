@@ -42,7 +42,7 @@ public class HttpRequest {
             this.protocol = tokens[2];
             this.path = HttpRequestUtils.parsePath(this.url);
             this.queryString = HttpRequestUtils.parseQueryString(this.url);
-            this.params = HttpRequestUtils.parseParameters(this.url);
+            this.params = HttpRequestUtils.parseParameters(this.queryString);
         }
 
         // 나머지 헤더 정보 읽음
@@ -60,6 +60,13 @@ public class HttpRequest {
                     this.cookies = HttpRequestUtils.parseCookies(pair.value);
                 }
             }
+        }
+
+        if (hasRequestBody() && contentLength > 0) {
+            String body = utils.IOUtils.readData(br, contentLength);
+            logger.debug("Body Data: {}", body);
+
+            this.params.putAll(HttpRequestUtils.parseParameters(body));
         }
     }
 
@@ -80,6 +87,7 @@ public class HttpRequest {
             }
         }
     }
+
 
     private boolean hasRequestBody() {
         return "POST".equalsIgnoreCase(this.method) || "PUT".equalsIgnoreCase(this.method) || "PATCH".equalsIgnoreCase(this.method);
