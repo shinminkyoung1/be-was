@@ -62,6 +62,5 @@ public class LoginRequestHandler implements Handler {
     private void loginFailed(HttpResponse response) {
         logger.debug("Login Failed");
         response.sendRedirect(Config.LOGIN_PAGE);
-
     }
 }

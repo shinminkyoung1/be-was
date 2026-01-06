@@ -3,6 +3,7 @@ package webserver.engine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import utils.HttpRequestUtils;
+import webserver.meta.Pair;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,6 +21,7 @@ public class HttpRequest {
     private String path;
     private String queryString;
     private String protocol;
+    private String cookies;
     private Map<String, String> headers = new HashMap<>();
     private Map<String, String> params = new HashMap<>();
 
@@ -33,29 +35,6 @@ public class HttpRequest {
         if (line == null) return;
 
         // Request Line 파싱
-        parseRequestLine(line);
-
-        // 나머지 헤더 정보 읽음
-        while ((line = br.readLine()) != null && !line.isEmpty()) {
-            logger.debug("Header: {}", line);
-            parseHeader(line);
-        }
-
-        if ((hasRequestBody() && contentLength > 0)) {
-            try {
-                String body = utils.IOUtils.readData(br, contentLength);
-                logger.debug("{} Body: {}", this.method, body);
-
-                Map<String, String> bodyParams = HttpRequestUtils.parseParameters(body);
-                this.params.putAll(bodyParams);
-            } catch (IOException e) {
-                logger.error("Failed to read {} body: {}", this.method, e.getMessage());
-                throw new IOException("Incomplete " + this.method + " body data", e);
-            }
-        }
-    }
-
-    private void parseRequestLine(String line) {
         String[] tokens = line.split(" ");
         if (tokens.length >= 3) {
             this.method = tokens[0];
@@ -63,7 +42,24 @@ public class HttpRequest {
             this.protocol = tokens[2];
             this.path = HttpRequestUtils.parsePath(this.url);
             this.queryString = HttpRequestUtils.parseQueryString(this.url);
-            this.params = HttpRequestUtils.parseParameters(this.queryString);
+            this.params = HttpRequestUtils.parseParameters(this.url);
+        }
+
+        // 나머지 헤더 정보 읽음
+        while ((line = br.readLine()) != null && !line.isEmpty()) {
+            Pair pair = HttpRequestUtils.parseHeader(line);
+            if (pair != null) {
+                headers.put(pair.key, pair.value);
+
+                if ("Content-Length".equalsIgnoreCase(pair.key)) {
+                    this.contentLength = Integer.parseInt(pair.value);
+                }
+
+                // 쿠키 파싱
+                if ("Cookie".equalsIgnoreCase(pair.key)) {
+                    this.cookies = HttpRequestUtils.parseCookies(pair.value).toString();
+                }
+            }
         }
     }
 

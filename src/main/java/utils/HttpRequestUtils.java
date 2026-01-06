@@ -2,6 +2,7 @@ package utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import webserver.meta.Pair;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -82,5 +83,32 @@ public class HttpRequestUtils {
             }
         }
         return params;
+    }
+
+    // 쿠키 문자열 파싱
+    public static Map<String, String> parseCookies(String cookieHeaderValue) {
+        Map<String, String> cookies = new HashMap<>();
+        if (cookieHeaderValue == null || cookieHeaderValue.isEmpty()) {
+            return cookies;
+        }
+
+        String[] pairs = cookieHeaderValue.split(";"); // Idea~ 와 분리
+        for (String pair : pairs) {
+            String[] keyValue = pair.split("=", 2);
+            if (keyValue.length == 2) {
+                cookies.put(keyValue[0].trim(), keyValue[1].trim());
+            }
+        }
+        return cookies;
+    }
+
+    // 헤더 파싱
+    public static Pair parseHeader(String headerLine) {
+        int index = headerLine.indexOf(":");
+        if (index == -1) return null;
+
+        String key = headerLine.substring(0, index).trim();
+        String value = headerLine.substring(index + 1).trim();
+        return new Pair(key, value);
     }
 }
