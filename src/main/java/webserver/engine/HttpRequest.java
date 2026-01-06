@@ -21,7 +21,7 @@ public class HttpRequest {
     private String path;
     private String queryString;
     private String protocol;
-    private String cookies;
+    private Map<String, String> cookies = new HashMap<>();
     private Map<String, String> headers = new HashMap<>();
     private Map<String, String> params = new HashMap<>();
 
@@ -57,7 +57,7 @@ public class HttpRequest {
 
                 // 쿠키 파싱
                 if ("Cookie".equalsIgnoreCase(pair.key)) {
-                    this.cookies = HttpRequestUtils.parseCookies(pair.value).toString();
+                    this.cookies = HttpRequestUtils.parseCookies(pair.value);
                 }
             }
         }
@@ -107,5 +107,10 @@ public class HttpRequest {
 
     public int getContentLength() {
         return contentLength;
+    }
+
+    public String getCookie(String name) {
+        if (this.cookies == null) return null;
+        return cookies.get(name);
     }
 }

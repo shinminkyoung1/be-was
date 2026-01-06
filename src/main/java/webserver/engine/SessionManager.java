@@ -38,4 +38,11 @@ public class SessionManager {
     public static String getSessionCookieValue(String sessionId) {
         return String.format("sid=%s; Path=/; HttpOnly", sessionId);
     }
+
+    public static User getUserBySessionId(String sessionId) {
+        SessionEntry entry = SessionDatabase.find(sessionId);
+        if (entry == null) return null;
+
+        return entry.getUser();
+    }
 }

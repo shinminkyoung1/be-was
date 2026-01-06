@@ -29,10 +29,18 @@ public class RequestHandler implements Runnable {
             // 응답 객체 생성
             HttpResponse response = new HttpResponse(out);
 
-            String path = request.getPath();
-            if (path == null) {
-                return;
+            String sid = request.getCookie("sid");
+            db.SessionEntry entry = db.SessionDatabase.find(sid);
+
+            if (entry != null) {
+                model.User loginUser = entry.getUser();
+                logger.debug("Authorized User: {} ({})", loginUser.name(), loginUser.userId());
+            } else {
+                logger.debug("Anonymous User Request");
             }
+
+            String path = request.getPath();
+            if (path == null) return;
 
             // 경로에 맞는 핸들러 있는지 확인
             Handler handler = RouteGuide.findHandler(path);
