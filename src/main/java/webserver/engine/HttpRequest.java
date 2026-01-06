@@ -50,7 +50,7 @@ public class HttpRequest {
                 this.params.putAll(bodyParams);
             } catch (IOException e) {
                 logger.error("Failed to read {} body: {}", this.method, e.getMessage());
-                throw new IOException("Incomplete " + this.method +  " body data", e);
+                throw new IOException("Incomplete " + this.method + " body data", e);
             }
         }
     }
@@ -92,17 +92,24 @@ public class HttpRequest {
     public String getMethod() {
         return method;
     }
+
     public String getUrl() {
         return url;
     }
+
     public String getPath() {
         return path;
     }
+
     public String getQueryString() {
-       return queryString;
+        return queryString;
     }
+
     public String getParameter(String name) {
         return params.get(name);
     }
-    public int getContentLength() { return contentLength; }
+
+    public int getContentLength() {
+        return contentLength;
+    }
 }

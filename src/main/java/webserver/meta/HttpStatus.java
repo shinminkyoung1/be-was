@@ -26,6 +26,7 @@ public enum HttpStatus {
     public int getCode() {
         return code;
     }
+
     public String getMessage() {
         return message;
     }
