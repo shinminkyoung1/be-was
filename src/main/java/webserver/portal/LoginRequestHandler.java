@@ -31,7 +31,7 @@ public class LoginRequestHandler implements Handler {
         User user = Database.findUserById(userId);
 
         // 유저 없는 경우 로그인 실패
-        if (user != null) {
+        if (user == null) {
             logger.debug("Login Failed: User ID '{}' not found in Database", userId);
             response.sendRedirect(Config.LOGIN_PAGE);
             return;
