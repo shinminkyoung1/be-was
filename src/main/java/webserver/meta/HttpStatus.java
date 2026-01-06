@@ -19,7 +19,7 @@ public enum HttpStatus {
     }
 
     public byte[] getErrorMessageBytes() {
-        String bodyText = String.format("%d %s: Access Denied or Resource Not found.", code, message);
+        String bodyText = String.format("%d %s", code, message);
         return bodyText.getBytes(StandardCharsets.UTF_8);
     }
 
