@@ -41,7 +41,7 @@ public class HttpRequest {
             parseHeader(line);
         }
 
-        if ((hasRequestBody() && contentLength > 0) {
+        if ((hasRequestBody() && contentLength > 0)) {
             try {
                 String body = utils.IOUtils.readData(br, contentLength);
                 logger.debug("{} Body: {}", this.method, body);
