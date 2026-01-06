@@ -20,6 +20,11 @@ public class UserRequestHandler implements Handler {
             response.sendError(HttpStatus.METHOD_NOT_ALLOWED);
             return;
         }
+
+        register(request, response);
+    }
+
+    private void register(HttpRequest request, HttpResponse response) {
         User user = new User(
                 request.getParameter("userId"),
                 request.getParameter("password"),
@@ -27,9 +32,7 @@ public class UserRequestHandler implements Handler {
                 request.getParameter("email")
         );
         Database.addUser(user);
-        logger.debug("User saved: {}", user);
-
-        // 작업 완료 후 메인 페이지로 리다이렉트
+        logger.debug("Saved User: {}", user);
         response.sendRedirect(Config.DEFAULT_PAGE);
     }
 }
