@@ -44,7 +44,7 @@ public class LoginRequestHandler implements Handler {
     }
 
     private void loginSuccess(User user, HttpResponse response) {
-        logger.debug("login Success: {}", user.userId());
+        logger.debug("Login Success: {}", user.userId());
 
         // 로그인 성공하면 세션 만듦
         String sessionId = SessionManager.createSession(user);
