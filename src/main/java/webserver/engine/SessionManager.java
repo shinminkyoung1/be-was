@@ -30,6 +30,16 @@ public class SessionManager {
         return entry.getUser();
     }
 
+    public static User getLoginUser(HttpRequest request) {
+        String sessionId = request.getCookie("sid");
+
+        if (sessionId == null) {
+            return null;
+        }
+
+        return getSessionUser(sessionId);
+    }
+
     public static boolean isExpired(SessionEntry entry) {
         Duration duration = Duration.between(entry.getLastAccessTime(), LocalDateTime.now());
         return duration.toMinutes() >= SESSION_TIMEOUT_MINUTES;
