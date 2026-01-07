@@ -76,6 +76,9 @@ public class RequestHandler implements Runnable {
         if (path.equals("/login")) {
             return Config.LOGIN_PAGE;
         }
+        if (path.equals("/mypage")) {
+            return Config.MY_PAGE;
+        }
         return path;
     }
 }
