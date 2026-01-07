@@ -30,7 +30,7 @@ public class SessionManager {
         return entry.getUser();
     }
 
-    private static boolean isExpired(SessionEntry entry) {
+    public static boolean isExpired(SessionEntry entry) {
         Duration duration = Duration.between(entry.getLastAccessTime(), LocalDateTime.now());
         return duration.toMinutes() >= SESSION_TIMEOUT_MINUTES;
     }

@@ -11,6 +11,7 @@ import db.SessionDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.engine.RequestHandler;
+import webserver.engine.SessionManager;
 
 public class WebServer {
     private static final Logger logger = LoggerFactory.getLogger(WebServer.class);
@@ -58,7 +59,7 @@ public class WebServer {
 
                 // 유효하지 않은 만료된 항목 삭제
                 SessionDatabase.getAll().entrySet().removeIf(entry ->
-                        entry.getValue().isExpired(currentTime)
+                        SessionManager.isExpired(entry.getValue())
                 );
 
                 int removedCount = beforeCount - SessionDatabase.getAll().size();

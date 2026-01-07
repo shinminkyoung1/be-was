@@ -13,8 +13,13 @@ public class SessionEntry {
         this.lastAccessTime = LocalDateTime.now();
     }
 
-    public User getUser() { return user; }
-    public LocalDateTime getLastAccessTime() { return lastAccessTime; }
+    public User getUser() {
+        return user;
+    }
+
+    public LocalDateTime getLastAccessTime() {
+        return lastAccessTime;
+    }
 
     public void updateLastAccessedTime() {
         this.lastAccessTime = LocalDateTime.now();
