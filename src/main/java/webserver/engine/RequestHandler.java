@@ -67,18 +67,12 @@ public class RequestHandler implements Runnable {
     }
 
     private String resolveStaticPath(String path) {
-        if (path.equals("/") || path.isEmpty()) {
-            return Config.DEFAULT_PAGE;
-        }
-        if (path.equals("/registration")) {
-            return Config.REGISTRATION_PAGE;
-        }
-        if (path.equals("/login")) {
-            return Config.LOGIN_PAGE;
-        }
-        if (path.equals("/mypage")) {
-            return Config.MY_PAGE;
-        }
-        return path;
+        return switch (path) {
+            case "/", "" -> Config.DEFAULT_PAGE;
+            case "/registration" -> Config.REGISTRATION_PAGE;
+            case "/login" -> Config.LOGIN_PAGE;
+            case "/mypage" -> Config.MY_PAGE;
+            default -> path;
+        };
     }
 }
