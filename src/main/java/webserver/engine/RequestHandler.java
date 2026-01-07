@@ -30,23 +30,25 @@ public class RequestHandler implements Runnable {
             // 응답 객체 생성
             HttpResponse response = new HttpResponse(out);
 
+            User loginUser = null;
             String sid = request.getCookie("sid");
 
             if (sid != null) {
                 db.SessionEntry entry = db.SessionDatabase.find(sid);
 
                 if (entry != null) {
-                    User loginUser = entry.getUser();
-                    logger.debug("Authorized User: {} ({})", loginUser.name(), loginUser.userId());
-                } else {
-                    logger.debug("Anonymous User Request");
+                    loginUser = entry.getUser();
                 }
-            } else {
-                logger.debug("Anonymous User Request  (No SID)");
             }
 
             String path = request.getPath();
             if (path == null) return;
+
+            if (path.equals("/mypage") && loginUser == null) {
+                logger.debug("Unauthorized access to /mypage.");
+                response.sendRedirect("/login");
+                return;
+            }
 
             // 경로에 맞는 핸들러 있는지 확인
             Handler handler = RouteGuide.findHandler(path);
@@ -56,7 +58,7 @@ public class RequestHandler implements Runnable {
                 handler.process(request, response);
             } else {
                 // 없으면 정적 파일 서빙
-                response.fileResponse(resolveStaticPath(path));
+                response.fileResponse(resolveStaticPath(path), loginUser);
             }
 
         } catch (IOException e) {
@@ -65,9 +67,15 @@ public class RequestHandler implements Runnable {
     }
 
     private String resolveStaticPath(String path) {
-        if (path.equals("/") || path.isEmpty()) { return Config.DEFAULT_PAGE; }
-        if (path.equals("/registration")) { return Config.REGISTRATION_PAGE; }
-        if (path.equals("/login")) { return Config.LOGIN_PAGE; }
+        if (path.equals("/") || path.isEmpty()) {
+            return Config.DEFAULT_PAGE;
+        }
+        if (path.equals("/registration")) {
+            return Config.REGISTRATION_PAGE;
+        }
+        if (path.equals("/login")) {
+            return Config.LOGIN_PAGE;
+        }
         return path;
     }
 }

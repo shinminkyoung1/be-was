@@ -1,6 +1,7 @@
 package webserver.engine;
 
 import exception.WebsServerException;
+import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import utils.HttpRequestUtils;
@@ -42,7 +43,7 @@ public class HttpResponse {
         writeResponse(HttpStatus.FOUND, new byte[0]); // 바디 없음
     }
 
-    public void fileResponse(String url) {
+    public void fileResponse(String url, User loginUser) {
         File file = new File(Config.STATIC_RESOURCE_PATH + url);
         if (!file.exists() || file.isDirectory()) {
             sendError(HttpStatus.NOT_FOUND);
@@ -51,6 +52,17 @@ public class HttpResponse {
 
         try {
             byte[] body = Files.readAllBytes(file.toPath());
+
+            // 동적 HTML 처리
+            if (url.endsWith(".html")) {
+                String content = new String(body, Config.UTF_8);
+                String headerHtml = PageRender.renderHeader(loginUser);
+                content = content.replace("{{header_items}}", headerHtml);
+
+                logger.debug("Rendering HTML for user: {}", loginUser != null ? loginUser.name() : "Guest");
+                body = content.getBytes(Config.UTF_8);
+            }
+
             addHeader("Content-Type", MimeType.getContentType(HttpRequestUtils.getFileExtension(url)) + ";charset=" + Config.UTF_8);
             addHeader("Content-Length", String.valueOf(body.length));
 
