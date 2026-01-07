@@ -56,10 +56,12 @@ public class HttpResponse {
             // 동적 HTML 처리
             if (url.endsWith(".html")) {
                 String content = new String(body, Config.UTF_8);
-                String headerHtml = PageRender.renderHeader(loginUser);
-                content = content.replace("{{header_items}}", headerHtml);
 
-                logger.debug("Rendering HTML for user: {}", loginUser != null ? loginUser.name() : "Guest");
+                Map<String, String> model = new HashMap<>();
+                model.put("header_items", PageRender.renderHeader(loginUser));
+
+                content = TemplateEngine.render(content, model);
+
                 body = content.getBytes(Config.UTF_8);
             }
 
