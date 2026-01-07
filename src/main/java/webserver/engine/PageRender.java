@@ -9,11 +9,11 @@ public class PageRender {
         if (loginUser != null) {
             // 로그인 상태: 글쓰기 + 이름(마이페이지) + 로그아웃
             sb.append("<li class=\"header__menu__item\">")
-                    .append("<a class=\"btn btn_contained btn_size_s\" href=\"/article\">글쓰기</a>")
+                    .append("<strong>").append(loginUser.name()).append("님</strong>")
                     .append("</li>")
                     .append("<li class=\"header__menu__item\">")
                     .append("<a class=\"btn btn_ghost btn_size_s\" href=\"/mypage\">")
-                    .append("<strong>").append(loginUser.name()).append("님</strong>")
+                    .append("<a class=\"btn btn_contained btn_size_s\" href=\"/article\">글쓰기</a>")
                     .append("</a></li>")
                     .append("<li class=\"header__menu__item\">")
                     .append("<a class=\"btn btn_ghost btn_size_s\" href=\"/user/logout\">로그아웃</a>")

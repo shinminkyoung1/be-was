@@ -56,7 +56,7 @@ public class LoginRequestHandler implements Handler {
         String sessionId = SessionManager.createSession(user);
         // 세션으로 쿠키 보냄
         response.addHeader("Set-Cookie", SessionManager.getSessionCookieValue(sessionId));
-        response.sendRedirect(Config.MAIN_PAGE);
+        response.sendRedirect(Config.DEFAULT_PAGE);
     }
 
     private void loginFailed(HttpResponse response) {
