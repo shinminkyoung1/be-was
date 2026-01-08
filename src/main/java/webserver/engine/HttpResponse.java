@@ -63,7 +63,8 @@ public class HttpResponse {
 
                 body = content.getBytes(Config.UTF_8);
             }
-            writeHeaders(url, body.length);
+            String contentType = MimeType.getContentType(HttpRequestUtils.getFileExtension(url));
+            writeHeaders(contentType, body.length);
             writeResponse(HttpStatus.OK, body);
         } catch (IOException e) {
             logger.error("Error while serving file {}: {}", url, e.getMessage());
@@ -94,10 +95,7 @@ public class HttpResponse {
     }
 
     // 공통 헤더 작성 로직
-    private void writeHeaders(String url, int contentLength) {
-        String extension = HttpRequestUtils.getFileExtension(url);
-        String contentType = MimeType.getContentType(extension);
-
+    private void writeHeaders(String contentType, int contentLength) {
         addHeader("Content-Type", contentType + ";charset=" + Config.UTF_8);
         addHeader("Content-Length", String.valueOf(contentLength));
     }
