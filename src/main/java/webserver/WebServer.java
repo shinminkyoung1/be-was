@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 import db.SessionDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import webserver.engine.RequestHandler;
+import webserver.portal.RequestHandler;
 import webserver.engine.SessionManager;
 
 public class WebServer {
