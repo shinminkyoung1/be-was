@@ -33,8 +33,7 @@ public class HttpResponse {
 
     public void sendError(HttpStatus status) {
         byte[] body = status.getErrorMessageBytes();
-        addHeader("Content-Type", "text/plain;charset=" + Config.UTF_8);
-        addHeader("Content-Length", String.valueOf(body.length));
+        writeHeaders("text/plain", body.length);
         writeResponse(status, body);
     }
 
