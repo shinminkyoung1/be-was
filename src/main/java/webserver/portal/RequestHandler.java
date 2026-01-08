@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.engine.HttpRequest;
 import webserver.engine.HttpResponse;
+import webserver.engine.SecurityInterceptor;
 import webserver.meta.Config;
 
 public class RequestHandler implements Runnable {
@@ -44,8 +45,9 @@ public class RequestHandler implements Runnable {
             String path = request.getPath();
             if (path == null) return;
 
-            if (path.equals("/mypage") && loginUser == null) {
-                logger.debug("Unauthorized access to /mypage.");
+            // 인터셉트 진행해 특정 페이지 접근 제한
+            if (!SecurityInterceptor.preHandler(path, loginUser)) {
+                logger.debug("Access Denied: Redirecting to /login");
                 response.sendRedirect("/login");
                 return;
             }
