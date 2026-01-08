@@ -64,10 +64,7 @@ public class HttpResponse {
 
                 body = content.getBytes(Config.UTF_8);
             }
-
-            addHeader("Content-Type", MimeType.getContentType(HttpRequestUtils.getFileExtension(url)) + ";charset=" + Config.UTF_8);
-            addHeader("Content-Length", String.valueOf(body.length));
-
+            writeHeaders(url, body.length);
             writeResponse(HttpStatus.OK, body);
         } catch (IOException e) {
             logger.error("Error while serving file {}: {}", url, e.getMessage());
@@ -95,5 +92,14 @@ public class HttpResponse {
             logger.error("Response Write Error: {}", e.getMessage());
             throw new WebsServerException(HttpStatus.INTERNAL_SERVER_ERROR, "응답 전송 중 오류 발생");
         }
+    }
+
+    // 공통 헤더 작성 로직
+    private void writeHeaders(String url, int contentLength) {
+        String extension = HttpRequestUtils.getFileExtension(url);
+        String contentType = MimeType.getContentType(extension);
+
+        addHeader("Content-Type", contentType + ";charset=" + Config.UTF_8);
+        addHeader("Content-Length", String.valueOf(contentLength));
     }
 }
