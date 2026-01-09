@@ -1,10 +1,10 @@
-package webserver.engine;
+package webserver;
 
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import utils.HttpRequestUtils;
-import webserver.meta.Pair;
+import webserver.config.Pair;
 
 import java.io.BufferedReader;
 import java.io.IOException;

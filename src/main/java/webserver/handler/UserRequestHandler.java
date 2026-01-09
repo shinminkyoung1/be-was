@@ -1,13 +1,13 @@
-package webserver.portal;
+package webserver.handler;
 
 import db.Database;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import webserver.meta.Config;
-import webserver.meta.HttpStatus;
-import webserver.engine.HttpRequest;
-import webserver.engine.HttpResponse;
+import webserver.config.Config;
+import webserver.config.HttpStatus;
+import webserver.HttpRequest;
+import webserver.HttpResponse;
 
 public class UserRequestHandler implements Handler {
     public static final Logger logger = LoggerFactory.getLogger(HttpResponse.class);

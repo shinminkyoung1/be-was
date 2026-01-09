@@ -1,4 +1,4 @@
-package webserver.meta;
+package webserver.config;
 
 public class Pair {
     public final String key;

@@ -2,7 +2,7 @@ package utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import webserver.meta.Pair;
+import webserver.config.Pair;
 
 import java.util.HashMap;
 import java.util.Map;

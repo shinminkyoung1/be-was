@@ -1,7 +1,7 @@
 package webserver;
 
 import org.junit.jupiter.api.Test;
-import webserver.meta.MimeType;
+import webserver.config.MimeType;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

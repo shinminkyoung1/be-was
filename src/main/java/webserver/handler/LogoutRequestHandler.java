@@ -1,11 +1,11 @@
-package webserver.portal;
+package webserver.handler;
 
 import db.SessionDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import webserver.engine.HttpRequest;
-import webserver.engine.HttpResponse;
-import webserver.meta.Config;
+import webserver.HttpRequest;
+import webserver.HttpResponse;
+import webserver.config.Config;
 
 public class LogoutRequestHandler implements Handler {
     private static final Logger logger = LoggerFactory.getLogger(LogoutRequestHandler.class);

@@ -1,13 +1,13 @@
-package webserver.engine;
+package webserver;
 
 import exception.WebsServerException;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import utils.HttpRequestUtils;
-import webserver.meta.Config;
-import webserver.meta.HttpStatus;
-import webserver.meta.MimeType;
+import webserver.config.Config;
+import webserver.config.HttpStatus;
+import webserver.config.MimeType;
 
 import java.io.DataOutputStream;
 import java.io.File;

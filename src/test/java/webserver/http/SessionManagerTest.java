@@ -1,8 +1,9 @@
-package webserver.engine;
+package webserver.http;
 
 import db.SessionEntry;
 import model.User;
 import org.junit.jupiter.api.Test;
+import webserver.SessionManager;
 
 import java.time.LocalDateTime;
 

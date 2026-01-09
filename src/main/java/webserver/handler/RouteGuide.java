@@ -1,6 +1,6 @@
-package webserver.portal;
+package webserver.handler;
 
-import webserver.meta.Config;
+import webserver.config.Config;
 
 import java.util.HashMap;
 import java.util.Map;
