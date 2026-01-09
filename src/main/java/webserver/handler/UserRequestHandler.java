@@ -8,6 +8,7 @@ import webserver.config.Config;
 import webserver.config.HttpStatus;
 import webserver.HttpRequest;
 import webserver.HttpResponse;
+import webserver.config.Pair;
 
 public class UserRequestHandler implements Handler {
     public static final Logger logger = LoggerFactory.getLogger(HttpResponse.class);
@@ -25,14 +26,30 @@ public class UserRequestHandler implements Handler {
     }
 
     private void register(HttpRequest request, HttpResponse response) {
-        User user = new User(
-                request.getParameter("userId"),
-                request.getParameter("password"),
-                request.getParameter("name"),
-                request.getParameter("email")
-        );
+        String userId = request.getParameter("userId");
+        String password = request.getParameter("password");
+        String name = request.getParameter("name");
+        String email = request.getParameter("email");
+
+        // 유효성 검사
+        if (isAnyEmpty(userId, password, name)) {
+            logger.warn("Registration failed: Missing required parameters.");
+            response.sendError(HttpStatus.BAD_REQUEST);
+            return;
+        }
+
+        User user = new User(userId, password, name, email);
         Database.addUser(user);
         logger.debug("Saved User: {}", user);
         response.sendRedirect(Config.DEFAULT_PAGE);
+    }
+
+    private boolean isAnyEmpty(String... values) {
+        for (String value : values) {
+            if (value == null || value.trim().isEmpty()) {
+                return true;
+            }
+        }
+        return false;
     }
 }
