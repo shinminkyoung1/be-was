@@ -1,5 +1,6 @@
 package webserver.engine;
 
+import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import utils.HttpRequestUtils;
@@ -120,5 +121,9 @@ public class HttpRequest {
     public String getCookie(String name) {
         if (this.cookies == null) return null;
         return cookies.get(name);
+    }
+
+    public User getLoginUser() {
+        return SessionManager.getLoginUser(this);
     }
 }

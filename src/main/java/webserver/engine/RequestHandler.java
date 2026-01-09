@@ -31,7 +31,7 @@ public class RequestHandler implements Runnable {
             HttpResponse response = new HttpResponse(out);
 
             // 유저 정보 추출
-            User loginUser = SessionManager.getLoginUser(request);
+            User loginUser = request.getLoginUser();
 
             String path = request.getPath();
             if (path == null) return;
