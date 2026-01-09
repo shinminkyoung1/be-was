@@ -30,16 +30,8 @@ public class RequestHandler implements Runnable {
             // 응답 객체 생성
             HttpResponse response = new HttpResponse(out);
 
-            User loginUser = null;
-            String sid = request.getCookie("sid");
-
-            if (sid != null) {
-                db.SessionEntry entry = db.SessionDatabase.find(sid);
-
-                if (entry != null) {
-                    loginUser = entry.getUser();
-                }
-            }
+            // 유저 정보 추출
+            User loginUser = SessionManager.getLoginUser(request);
 
             String path = request.getPath();
             if (path == null) return;
