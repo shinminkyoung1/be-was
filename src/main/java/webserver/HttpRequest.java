@@ -4,6 +4,7 @@ import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import utils.HttpRequestUtils;
+import utils.IOUtils;
 import webserver.config.Pair;
 
 import java.io.BufferedReader;
@@ -13,6 +14,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Stack;
 
 public class HttpRequest {
     private static final Logger logger = LoggerFactory.getLogger(HttpRequest.class);
@@ -28,6 +30,8 @@ public class HttpRequest {
 
     // 바디 길이를 저장
     private int contentLength = 0;
+    // 바디 길이 존재 여부 저장
+    private boolean isChunked = false;
 
     public HttpRequest(InputStream in) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
@@ -53,11 +57,10 @@ public class HttpRequest {
                 headers.put(pair.key, pair.value);
 
                 if ("Content-Length".equalsIgnoreCase(pair.key)) {
-                    try {
-                        this.contentLength = Integer.parseInt(pair.value);
-                    } catch (NumberFormatException e) {
-                        this.contentLength = -1;
-                    }
+                    this.contentLength = Integer.parseInt(pair.value);
+                }
+                if ("Transfer-Encoding".equalsIgnoreCase(pair.key) && "chunked".equalsIgnoreCase(pair.value)) {
+                    this.isChunked = true;
                 }
 
                 // 쿠키 파싱
@@ -68,11 +71,15 @@ public class HttpRequest {
         }
 
         if (hasRequestBody()) {
-            if (contentLength > 0) {
-                String body = utils.IOUtils.readData(br, contentLength);
-                logger.debug("Body Data: {}", body);
-            } else if (contentLength == -1) {
-                logger.warn("Invalid Content-Length. Skipping body parsing");
+            if (isChunked) {
+                logger.debug("Body is chunked. Reading chunked data");
+                String body = readChunkedBody(br);
+                this.params.putAll(HttpRequestUtils.parseParameters(body));
+            } else if (contentLength > 0) {
+                String body = IOUtils.readData(br, contentLength);
+                this.params.putAll(HttpRequestUtils.parseParameters(body));
+            } else {
+                logger.warn("POST request missing Content-Length or Transfer-Encoding. Path: {}", path);
             }
         }
     }
@@ -95,6 +102,20 @@ public class HttpRequest {
         }
     }
 
+    private String readChunkedBody(BufferedReader br) throws IOException {
+        StringBuilder body = new StringBuilder();
+        String line;
+        while ((line = br.readLine()) != null) {
+            int chunkSize = Integer.parseInt(line.trim(), 16);
+            if (chunkSize == 0) break;
+
+            char[] buffer = new char[chunkSize];
+            br.read(buffer, 0, chunkSize);
+            body.append(buffer);
+            br.readLine();
+        }
+        return body.toString();
+    }
 
     private boolean hasRequestBody() {
         return "POST".equalsIgnoreCase(this.method) || "PUT".equalsIgnoreCase(this.method) || "PATCH".equalsIgnoreCase(this.method);
