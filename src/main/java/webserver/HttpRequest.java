@@ -53,7 +53,11 @@ public class HttpRequest {
                 headers.put(pair.key, pair.value);
 
                 if ("Content-Length".equalsIgnoreCase(pair.key)) {
-                    this.contentLength = Integer.parseInt(pair.value);
+                    try {
+                        this.contentLength = Integer.parseInt(pair.value);
+                    } catch (NumberFormatException e) {
+                        this.contentLength = -1;
+                    }
                 }
 
                 // 쿠키 파싱
@@ -63,11 +67,13 @@ public class HttpRequest {
             }
         }
 
-        if (hasRequestBody() && contentLength > 0) {
-            String body = utils.IOUtils.readData(br, contentLength);
-            logger.debug("Body Data: {}", body);
-
-            this.params.putAll(HttpRequestUtils.parseParameters(body));
+        if (hasRequestBody()) {
+            if (contentLength > 0) {
+                String body = utils.IOUtils.readData(br, contentLength);
+                logger.debug("Body Data: {}", body);
+            } else if (contentLength == -1) {
+                logger.warn("Invalid Content-Length. Skipping body parsing");
+            }
         }
     }
 
