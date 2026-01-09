@@ -1,5 +1,7 @@
 package webserver.portal;
 
+import webserver.meta.Config;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,6 +19,20 @@ public class RouteGuide {
         mappings.put("/user/login", loginHandler);
         // 로그아웃
         mappings.put("/user/logout", logoutHandler);
+
+        // 정적 파일 연결
+        mappings.put("/", (req, res) ->
+                res.fileResponse(Config.DEFAULT_PAGE, req.getLoginUser())
+        );
+        mappings.put("/registration", (req, res) ->
+                res.fileResponse(Config.REGISTRATION_PAGE, req.getLoginUser())
+        );
+        mappings.put("/login", (req, res) ->
+                res.fileResponse(Config.LOGIN_PAGE, req.getLoginUser())
+        );
+        mappings.put("/mypage", (req, res) ->
+                res.fileResponse(Config.MY_PAGE, req.getLoginUser())
+        );
     }
 
     public static Handler findHandler(String path) {

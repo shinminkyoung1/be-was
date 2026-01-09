@@ -45,27 +45,16 @@ public class RequestHandler implements Runnable {
 
             // 경로에 맞는 핸들러 있는지 확인
             Handler handler = RouteGuide.findHandler(path);
-
             if (handler != null) {
                 // 핸들러 있으면 해당 로직 수행
                 handler.process(request, response);
             } else {
                 // 없으면 정적 파일 서빙
-                response.fileResponse(resolveStaticPath(path), loginUser);
+                response.fileResponse(path, loginUser);
             }
 
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
-    }
-
-    private String resolveStaticPath(String path) {
-        return switch (path) {
-            case "/", "" -> Config.DEFAULT_PAGE;
-            case "/registration" -> Config.REGISTRATION_PAGE;
-            case "/login" -> Config.LOGIN_PAGE;
-            case "/mypage" -> Config.MY_PAGE;
-            default -> path;
-        };
     }
 }
