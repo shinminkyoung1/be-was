@@ -149,8 +149,4 @@ public class HttpRequest {
         if (this.cookies == null) return null;
         return cookies.get(name);
     }
-
-    public User getLoginUser() {
-        return SessionManager.getLoginUser(this);
-    }
 }
