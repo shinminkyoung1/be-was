@@ -10,6 +10,8 @@ import java.util.concurrent.TimeUnit;
 import db.SessionDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import webserver.config.AppConfig;
+import webserver.handler.RouteGuide;
 
 public class WebServer {
     private static final Logger logger = LoggerFactory.getLogger(WebServer.class);
@@ -29,6 +31,8 @@ public class WebServer {
             port = Integer.parseInt(args[0]);
         }
 
+        RouteGuide routeGuide = new RouteGuide(AppConfig.getRouteMappings());
+
         // [백그라운드 작업] 만료된 세션 청소
         startSessionMaintenance();
 
@@ -39,7 +43,7 @@ public class WebServer {
             // 클라이언트가 연결될때까지 대기한다.
             Socket connection;
             while ((connection = listenSocket.accept()) != null) {
-                executorService.execute(new RequestHandler(connection));
+                executorService.execute(new RequestHandler(connection, routeGuide));
             }
         } finally {
             executorService.shutdown();

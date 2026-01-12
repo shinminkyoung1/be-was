@@ -13,9 +13,11 @@ public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
 
     private Socket connection;
+    private final RouteGuide routeGuide;
 
-    public RequestHandler(Socket connectionSocket) {
+    public RequestHandler(Socket connectionSocket, RouteGuide routeGuide) {
         this.connection = connectionSocket;
+        this.routeGuide = routeGuide;
     }
 
     public void run() {
@@ -43,7 +45,7 @@ public class RequestHandler implements Runnable {
             }
 
             // 경로에 맞는 핸들러 있는지 확인
-            Handler handler = RouteGuide.findHandler(path);
+            Handler handler = routeGuide.findHandler(path);
             if (handler != null) {
                 // 핸들러 있으면 해당 로직 수행
                 handler.process(request, response);
