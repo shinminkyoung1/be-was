@@ -10,8 +10,16 @@ import webserver.HttpRequest;
 import webserver.HttpResponse;
 import webserver.config.Pair;
 
+import javax.xml.crypto.Data;
+
 public class UserRequestHandler implements Handler {
     public static final Logger logger = LoggerFactory.getLogger(HttpResponse.class);
+
+    private final Database database;
+
+    public UserRequestHandler(Database database) {
+        this.database = database;
+    }
 
     @Override
     public void process(HttpRequest request, HttpResponse response) {
@@ -39,7 +47,7 @@ public class UserRequestHandler implements Handler {
         }
 
         User user = new User(userId, password, name, email);
-        Database.addUser(user);
+        database.addUser(user);
         logger.debug("Saved User: {}", user);
         response.sendRedirect(Config.DEFAULT_PAGE);
     }
