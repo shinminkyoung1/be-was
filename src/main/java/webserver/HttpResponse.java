@@ -51,7 +51,7 @@ public class HttpResponse {
 
     public void fileResponse(String url, User loginUser) {
         File file = new File(Config.STATIC_RESOURCE_PATH + url);
-        if (!file.exists() || file.isDirectory()) {
+        if (!file.exists()) {
             sendError(HttpStatus.NOT_FOUND);
             return;
         }
