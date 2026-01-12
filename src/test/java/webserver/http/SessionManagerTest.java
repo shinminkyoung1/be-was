@@ -15,7 +15,7 @@ public class SessionManagerTest {
     @Test
     void sessionActiveTest() {
         User user = new User("tester", "1234", "name", "test@test.com");
-        SessionEntry activeEntry = new SessionEntry(user);
+        SessionEntry activeEntry = new SessionEntry(user.userId());
 
         // 만료 여부 검증
         assertFalse(SessionManager.isExpired(activeEntry), "방금 생성된 세션은 false를 반환해야 함");
@@ -26,7 +26,7 @@ public class SessionManagerTest {
     void sessionExpirationTest() {
         User user = new User("tester", "1234", "name", "test@test.com");
         LocalDateTime pastTime = LocalDateTime.now().minusMinutes(61);
-        SessionEntry expiredEntry = new SessionEntry(user, pastTime);
+        SessionEntry expiredEntry = new SessionEntry(user.userId(), pastTime);
 
         // 만료 여부 검증
         assertTrue(SessionManager.isExpired(expiredEntry), "61분이 지났으므로 true를 반환해야 함");
@@ -38,9 +38,9 @@ public class SessionManagerTest {
         User user = new User("tester", "1234", "name", null);
 
         // 정상 세션
-        db.SessionDatabase.save("valid-sid", new SessionEntry(user));
+        db.SessionDatabase.save("valid-sid", new SessionEntry(user.userId()));
         // 만료된 세션 1개 (61분 전 시간 주입)
-        db.SessionDatabase.save("expired-sid", new SessionEntry(user, LocalDateTime.now().minusMinutes(61)));
+        db.SessionDatabase.save("expired-sid", new SessionEntry(user.userId(), LocalDateTime.now().minusMinutes(61)));
 
         db.SessionDatabase.getAll().entrySet().removeIf(entry ->
                 SessionManager.isExpired(entry.getValue())
