@@ -1,8 +1,5 @@
 package webserver.handler;
 
-import webserver.config.Config;
-
-import java.util.HashMap;
 import java.util.Map;
 
 public class RouteGuide {
