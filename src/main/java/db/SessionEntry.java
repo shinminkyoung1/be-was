@@ -5,22 +5,22 @@ import model.User;
 import java.time.LocalDateTime;
 
 public class SessionEntry {
-    private final User user;
+    private final String userId;
     private LocalDateTime lastAccessTime;
 
-    public SessionEntry(User user) {
-        this.user = user;
+    public SessionEntry(String userId) {
+        this.userId = userId;
         this.lastAccessTime = LocalDateTime.now();
     }
 
     // 테스트용 생성자
-    public SessionEntry(User user, LocalDateTime lastAccessTime) {
-        this.user = user;
+    public SessionEntry(String userId, LocalDateTime lastAccessTime) {
+        this.userId = userId;
         this.lastAccessTime = lastAccessTime;
     }
 
-    public User getUser() {
-        return user;
+    public String getUserId() {
+        return userId;
     }
 
     public LocalDateTime getLastAccessTime() {
