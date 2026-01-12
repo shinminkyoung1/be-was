@@ -7,6 +7,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import db.Database;
 import db.SessionDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,7 @@ public class WebServer {
             port = Integer.parseInt(args[0]);
         }
 
+        Database database = AppConfig.getDatabase();
         RouteGuide routeGuide = new RouteGuide(AppConfig.getRouteMappings());
 
         // [백그라운드 작업] 만료된 세션 청소
@@ -43,7 +45,7 @@ public class WebServer {
             // 클라이언트가 연결될때까지 대기한다.
             Socket connection;
             while ((connection = listenSocket.accept()) != null) {
-                executorService.execute(new RequestHandler(connection, routeGuide));
+                executorService.execute(new RequestHandler(connection, routeGuide, database));
             }
         } finally {
             executorService.shutdown();
