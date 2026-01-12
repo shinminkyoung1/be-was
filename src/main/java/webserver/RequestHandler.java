@@ -3,6 +3,7 @@ package webserver;
 import java.io.*;
 import java.net.Socket;
 
+import db.Database;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,10 +15,12 @@ public class RequestHandler implements Runnable {
 
     private Socket connection;
     private final RouteGuide routeGuide;
+    private final Database database;
 
-    public RequestHandler(Socket connectionSocket, RouteGuide routeGuide) {
+    public RequestHandler(Socket connectionSocket, RouteGuide routeGuide, Database database) {
         this.connection = connectionSocket;
         this.routeGuide = routeGuide;
+        this.database = database;
     }
 
     public void run() {
@@ -33,7 +36,7 @@ public class RequestHandler implements Runnable {
 
             // 유저 정보 추출
             String sessionId = request.getCookie("sid");
-            User loginUser = SessionManager.getLoginUser(sessionId);
+            User loginUser = SessionManager.getLoginUser(sessionId, database);
 
             String path = request.getPath();
             if (path == null) return;
