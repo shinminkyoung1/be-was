@@ -30,13 +30,10 @@ public class SessionManager {
         return entry.getUser();
     }
 
-    public static User getLoginUser(HttpRequest request) {
-        String sessionId = request.getCookie("sid");
-
+    public static User getLoginUser(String sessionId) {
         if (sessionId == null) {
             return null;
         }
-
         return getSessionUser(sessionId);
     }
 
