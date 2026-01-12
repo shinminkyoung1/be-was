@@ -13,7 +13,7 @@ import webserver.config.Pair;
 import javax.xml.crypto.Data;
 
 public class UserRequestHandler implements Handler {
-    public static final Logger logger = LoggerFactory.getLogger(HttpResponse.class);
+    public static final Logger logger = LoggerFactory.getLogger(UserRequestHandler.class);
 
     private final Database database;
 
