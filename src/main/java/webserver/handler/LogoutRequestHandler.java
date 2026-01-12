@@ -1,5 +1,6 @@
 package webserver.handler;
 
+import db.Database;
 import db.SessionDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +10,12 @@ import webserver.config.Config;
 
 public class LogoutRequestHandler implements Handler {
     private static final Logger logger = LoggerFactory.getLogger(LogoutRequestHandler.class);
+
+    private final Database database;
+
+    public LogoutRequestHandler(Database database) {
+        this.database = database;
+    }
 
     @Override
     public void process(HttpRequest request, HttpResponse response) {
