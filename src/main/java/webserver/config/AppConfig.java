@@ -1,6 +1,7 @@
 package webserver.config;
 
 import db.Database;
+import webserver.SessionManager;
 import webserver.handler.Handler;
 import webserver.handler.LoginRequestHandler;
 import webserver.handler.LogoutRequestHandler;
@@ -31,7 +32,7 @@ public class AppConfig {
         );
 
         staticPages.forEach((path, filePath) ->
-                mappings.put(path, (request, response) -> response.fileResponse(filePath, request.getLoginUser()))
+                mappings.put(path, (request, response) -> response.fileResponse(filePath, SessionManager.getLoginUser(request.getCookie("sid"))))
         );
         return mappings;
     }
