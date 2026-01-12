@@ -13,6 +13,12 @@ import webserver.config.HttpStatus;
 public class LoginRequestHandler implements Handler {
     private static final Logger logger = LoggerFactory.getLogger(LoginRequestHandler.class);
 
+    private final Database database;
+
+    public LoginRequestHandler(Database database) {
+        this.database = database;
+    }
+
     @Override
     public void process(HttpRequest request, HttpResponse response) {
         if (!"POST".equalsIgnoreCase(request.getMethod())) {
@@ -28,7 +34,7 @@ public class LoginRequestHandler implements Handler {
         String userId = request.getParameter("userId");
         String password = request.getParameter("password");
 
-        User user = Database.findUserById(userId);
+        User user = database.findUserById(userId);
 
         // 유저 없는 경우 로그인 실패
         if (user == null) {
