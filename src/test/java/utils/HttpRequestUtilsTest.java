@@ -1,14 +1,18 @@
 package utils;
 
+import db.Database;
 import model.User;
 import org.junit.jupiter.api.Test;
 
+import javax.xml.crypto.Data;
 import java.util.Map;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class HttpRequestUtilsTest {
+
+    private Database database;
 
     @Test
     void parseUrl() {
@@ -101,9 +105,9 @@ class HttpRequestUtilsTest {
                 params.get("name"),
                 params.get("email")
         );
-        db.Database.addUser(user);
+        database.addUser(user);
 
-        User savedUser = db.Database.findUserById("javajigi");
+        User savedUser = database.findUserById("javajigi");
         assertThat(savedUser.userId()).isEqualTo("javajigi");
         assertThat(savedUser.name()).isEqualTo("박재성");
     }
