@@ -2,6 +2,7 @@ package webserver.config;
 
 import db.ArticleDao;
 import db.Database;
+import db.UserDao;
 import model.Article;
 import model.User;
 import webserver.SessionManager;
@@ -12,13 +13,14 @@ import java.util.Map;
 
 public class AppConfig {
     private static final Database database = new Database();
+    private static final UserDao userDao = new UserDao();
     private static final ArticleDao articleDao = new ArticleDao();
 
-    private static final Handler userHandler = new UserRequestHandler(database);
-    private static final Handler loginHandler = new LoginRequestHandler(database);
-    private static final Handler logoutHandler = new LogoutRequestHandler(database);
+    private static final Handler userHandler = new UserRequestHandler(userDao);
+    private static final Handler loginHandler = new LoginRequestHandler(userDao);
+    private static final Handler logoutHandler = new LogoutRequestHandler(userDao);
 
-    private static final Handler articleWriteHandler = new ArticleWriteHandler(articleDao);
+    private static final Handler articleWriteHandler = new ArticleWriteHandler(articleDao, userDao);
 
     public static Map<String, Handler> getRouteMappings() {
         Map<String, Handler> mappings = new HashMap<>();
@@ -40,14 +42,14 @@ public class AppConfig {
         staticPages.forEach((path, filePath) ->
                 mappings.put(path, (request, response) -> {
                     String sessionId = request.getCookie("sid");
-                    User loginUser = SessionManager.getLoginUser(sessionId, database);
+                    User loginUser = SessionManager.getLoginUser(sessionId, userDao);
                     response.fileResponse(filePath, loginUser);
                 })
         );
         return mappings;
     }
 
-    public static Database getDatabase() {
-        return database;
+    public static UserDao getUserDao() {
+        return userDao;
     }
 }

@@ -1,6 +1,7 @@
 package webserver.handler;
 
 import db.Database;
+import db.UserDao;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,10 +16,10 @@ import javax.xml.crypto.Data;
 public class UserRequestHandler implements Handler {
     public static final Logger logger = LoggerFactory.getLogger(UserRequestHandler.class);
 
-    private final Database database;
+    private final UserDao userDao;
 
-    public UserRequestHandler(Database database) {
-        this.database = database;
+    public UserRequestHandler(UserDao userDao) {
+        this.userDao = userDao;
     }
 
     @Override
@@ -47,7 +48,7 @@ public class UserRequestHandler implements Handler {
         }
 
         User user = new User(userId, password, name, email);
-        database.addUser(user);
+        userDao.insert(user);
         logger.debug("Saved User: {}", user);
         response.sendRedirect(Config.DEFAULT_PAGE);
     }

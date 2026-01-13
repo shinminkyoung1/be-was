@@ -2,6 +2,7 @@ package webserver.handler;
 
 import db.Database;
 import db.SessionDatabase;
+import db.UserDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.HttpRequest;
@@ -11,10 +12,10 @@ import webserver.config.Config;
 public class LogoutRequestHandler implements Handler {
     private static final Logger logger = LoggerFactory.getLogger(LogoutRequestHandler.class);
 
-    private final Database database;
+    private final UserDao userDao;
 
-    public LogoutRequestHandler(Database database) {
-        this.database = database;
+    public LogoutRequestHandler(UserDao userDao) {
+        this.userDao = userDao;
     }
 
     @Override
