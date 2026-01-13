@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class AppConfig {
-    private static final Database database = new Database();
     private static final UserDao userDao = new UserDao();
     private static final ArticleDao articleDao = new ArticleDao();
 
@@ -21,6 +20,7 @@ public class AppConfig {
     private static final Handler logoutHandler = new LogoutRequestHandler(userDao);
 
     private static final Handler articleWriteHandler = new ArticleWriteHandler(articleDao, userDao);
+    private static final Handler articleIndexHandler = new ArticleIndexHandler(articleDao);
 
     public static Map<String, Handler> getRouteMappings() {
         Map<String, Handler> mappings = new HashMap<>();
@@ -30,9 +30,10 @@ public class AppConfig {
         mappings.put("/user/logout", logoutHandler);
 
         mappings.put("/article/write", articleWriteHandler);
+        mappings.put("/", articleIndexHandler);
+        mappings.put("/index.html", articleIndexHandler);
 
         Map<String, String> staticPages = Map.of(
-                "/", Config.DEFAULT_PAGE,
                 "/registration", Config.REGISTRATION_PAGE,
                 "/login", Config.LOGIN_PAGE,
                 "/mypage", Config.MY_PAGE,
@@ -43,7 +44,7 @@ public class AppConfig {
                 mappings.put(path, (request, response) -> {
                     String sessionId = request.getCookie("sid");
                     User loginUser = SessionManager.getLoginUser(sessionId, userDao);
-                    response.fileResponse(filePath, loginUser);
+                    response.fileResponse(filePath, loginUser, null);
                 })
         );
         return mappings;

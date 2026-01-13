@@ -56,7 +56,7 @@ public class RequestHandler implements Runnable {
                 handler.process(request, response);
             } else {
                 // 없으면 정적 파일 서빙
-                response.fileResponse(path, loginUser);
+                response.fileResponse(path, loginUser, null);
             }
 
         } catch (IOException e) {

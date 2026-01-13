@@ -49,7 +49,7 @@ public class HttpResponse {
         processWrite(new byte[0]); // 바디 없음
     }
 
-    public void fileResponse(String url, User loginUser) {
+    public void fileResponse(String url, User loginUser, Map<String, String> additionalModel) {
         File file = new File(Config.STATIC_RESOURCE_PATH + url);
         if (!file.exists()) {
             sendError(HttpStatus.NOT_FOUND);
@@ -65,6 +65,10 @@ public class HttpResponse {
 
                 Map<String, String> model = new HashMap<>();
                 model.put("header_items", PageRender.renderHeader(loginUser));
+
+                if (additionalModel != null) {
+                    model.putAll(additionalModel);
+                }
 
                 content = TemplateEngine.render(content, model);
 
@@ -121,5 +125,17 @@ public class HttpResponse {
     private void setHttpHeader(String contentType, int contentLength) {
         addHeader("Content-Type", contentType + ";charset=" + Config.UTF_8);
         addHeader("Content-Length", String.valueOf(contentLength));
+    }
+
+    public void sendHtmlContent(String content) {
+        try {
+            byte[] body = content.getBytes(Config.UTF_8);
+            this.status = HttpStatus.OK;
+            setHttpHeader("text/html", body.length);
+            processWrite(body);
+        } catch (Exception e) {
+            logger.error("Error while encoding HTML content: {}", e.getMessage());
+            sendError(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
