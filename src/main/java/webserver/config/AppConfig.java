@@ -33,7 +33,8 @@ public class AppConfig {
                 "/", Config.DEFAULT_PAGE,
                 "/registration", Config.REGISTRATION_PAGE,
                 "/login", Config.LOGIN_PAGE,
-                "/mypage", Config.MY_PAGE
+                "/mypage", Config.MY_PAGE,
+                "/article", Config.ARTICLE_PAGE
         );
 
         staticPages.forEach((path, filePath) ->
