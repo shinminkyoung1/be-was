@@ -5,10 +5,7 @@ import db.Database;
 import model.Article;
 import model.User;
 import webserver.SessionManager;
-import webserver.handler.Handler;
-import webserver.handler.LoginRequestHandler;
-import webserver.handler.LogoutRequestHandler;
-import webserver.handler.UserRequestHandler;
+import webserver.handler.*;
 
 import java.util.HashMap;
 import java.util.Map;
