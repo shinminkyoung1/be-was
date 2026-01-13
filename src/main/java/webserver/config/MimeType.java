@@ -1,4 +1,4 @@
-package webserver;
+package webserver.config;
 
 import java.util.Arrays;
 

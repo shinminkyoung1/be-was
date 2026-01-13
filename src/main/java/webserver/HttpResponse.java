@@ -1,15 +1,17 @@
 package webserver;
 
-import exception.WebsServerException;
+import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import utils.HttpRequestUtils;
+import webserver.config.Config;
+import webserver.config.HttpStatus;
+import webserver.config.MimeType;
 
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +19,8 @@ import java.util.Map;
 public class HttpResponse {
     public static final Logger logger = LoggerFactory.getLogger(HttpResponse.class);
     private final DataOutputStream dos;
+    private HttpStatus status = HttpStatus.OK;
+    private boolean isCommitted = false;
 
     private final Map<String, String> headers = new HashMap<>();
 
@@ -28,68 +32,94 @@ public class HttpResponse {
         headers.put(key, value);
     }
 
-    public void fileResponse(String url) {
-        File file = new File(Config.STATIC_RESOURCE_PATH + url);
+    public void sendError(HttpStatus status) {
+        if (isCommitted) {
+            logger.warn("The error page cannot be sent because the response has already started.");
+            return;
+        }
+        this.status = status;
+        byte[] body = status.getErrorMessageBytes();
+        setHttpHeader("text/plain", body.length);
+        processWrite(body);
+    }
 
-        // 파일 존재 여부 확인 후 존재하지 않으면 404 응답 호출
-        if (!file.exists() || file.isDirectory()) {
-            send404Response();
+    public void sendRedirect(String redirectUrl) {
+        this.status = HttpStatus.FOUND;
+        addHeader("Location", redirectUrl);
+        processWrite(new byte[0]); // 바디 없음
+    }
+
+    public void fileResponse(String url, User loginUser) {
+        File file = new File(Config.STATIC_RESOURCE_PATH + url);
+        if (!file.exists()) {
+            sendError(HttpStatus.NOT_FOUND);
             return;
         }
 
         try {
             byte[] body = Files.readAllBytes(file.toPath());
-            addHeader("Content-Type", MimeType.getContentType(HttpRequestUtils.getFileExtension(url)) + ";charset=" + Config.UTF_8);
-            addHeader("Content-Length", String.valueOf(body.length));
 
-            writeResponse(HttpStatus.OK, body); // 공통 메서드로 추출
+            // 동적 HTML 처리
+            if (url.endsWith(".html")) {
+                String content = new String(body, Config.UTF_8);
+
+                Map<String, String> model = new HashMap<>();
+                model.put("header_items", PageRender.renderHeader(loginUser));
+
+                content = TemplateEngine.render(content, model);
+
+                body = content.getBytes(Config.UTF_8);
+            }
+            String contentType = MimeType.getContentType(HttpRequestUtils.getFileExtension(url));
+            this.status = HttpStatus.OK;
+            setHttpHeader(contentType, body.length);
+            processWrite(body);
         } catch (IOException e) {
             logger.error("Error while serving file {}: {}", url, e.getMessage());
-            send500Response();
+            sendError(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    // 404 Not Found 응답 처리
-    public void send404Response() {
-        byte[] body = "404 File Not Found".getBytes(StandardCharsets.UTF_8);
-        addHeader("Content-Type", "text/plain;charset=" + Config.UTF_8);
-        addHeader("Content-Length", String.valueOf(body.length));
-        writeResponse(HttpStatus.NOT_FOUND, body);
-    }
-
-    // 500 Internal Server Error 응답 처리
-    public void send500Response() {
-        byte[] body = "500 Internal Server Error".getBytes(StandardCharsets.UTF_8);
-        addHeader("Content-Type", "text/plain;charset=" + Config.UTF_8);
-        addHeader("Content-Length", String.valueOf(body.length));
-        writeResponse(HttpStatus.INTERNAL_SERVER_ERROR, body);
-    }
-
-    // 302 Found 응답 처리
-    public void sendRedirect(String redirectUrl) {
-        addHeader("Location", redirectUrl);
-        writeResponse(HttpStatus.FOUND, new byte[0]); // 바디 없음
-    }
-
-    // 공통 응답 작성 로직
-    private void writeResponse(HttpStatus status, byte[] body) {
+    private void processWrite(byte[] body) {
         try {
-            // Status Line
-            dos.writeBytes("HTTP/1.1 " + status.toString() + " " + Config.CRLF);
-            // Headers
-            for (String key : headers.keySet()) {
-                dos.writeBytes(key + ": " + headers.get(key) + Config.CRLF);
+            // 헤더 전송
+            if (!isCommitted) {
+                writeStatusLine();
+                writeAllHeaders();
+                isCommitted = true;
             }
-            // Blank Line
-            dos.writeBytes(Config.CRLF);
-            // Body
-            if (body.length > 0) {
+
+            // 바디 전송
+            if (body != null && body.length > 0) {
                 dos.write(body, 0, body.length);
             }
             dos.flush();
+
         } catch (IOException e) {
-            logger.error("Response Write Error: {}", e.getMessage());
-            throw new WebsServerException(HttpStatus.INTERNAL_SERVER_ERROR, "응답 전송 중 오류 발생");
+            handleWriteError(e);
         }
+    }
+
+    private void handleWriteError(IOException e) {
+        logger.error("Exception during transfer: {}", e.getMessage());
+        if (!isCommitted && status != HttpStatus.INTERNAL_SERVER_ERROR) {
+            sendError(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private void writeStatusLine() throws IOException {
+        dos.writeBytes("HTTP/1.1 " + status.toString() + Config.CRLF);
+    }
+
+    private void writeAllHeaders() throws IOException {
+        for (Map.Entry<String, String> entry : headers.entrySet()) {
+            dos.writeBytes(entry.getKey() + ": " + entry.getValue() + Config.CRLF);
+        }
+        dos.writeBytes(Config.CRLF);
+    }
+
+    private void setHttpHeader(String contentType, int contentLength) {
+        addHeader("Content-Type", contentType + ";charset=" + Config.UTF_8);
+        addHeader("Content-Length", String.valueOf(contentLength));
     }
 }
