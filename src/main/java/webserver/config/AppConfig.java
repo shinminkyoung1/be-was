@@ -29,7 +29,7 @@ public class AppConfig {
         mappings.put("/user/login", loginHandler);
         mappings.put("/user/logout", logoutHandler);
 
-        mappings.put("/article/create", articleWriteHandler);
+        mappings.put("/article/write", articleWriteHandler);
 
         Map<String, String> staticPages = Map.of(
                 "/", Config.DEFAULT_PAGE,

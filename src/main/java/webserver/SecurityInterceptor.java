@@ -6,7 +6,7 @@ import java.util.List;
 
 public class SecurityInterceptor {
     // 권한을 제한할 경로
-    private static final List<String> restrictedPaths = List.of("/mypage", "/user/logout", "article/create");
+    private static final List<String> restrictedPaths = List.of("/mypage", "/user/logout", "article/write");
 
     public static boolean preHandler(String path, User loginUser) {
         if (restrictedPaths.contains(path)) {
