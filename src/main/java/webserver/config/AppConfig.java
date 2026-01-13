@@ -1,6 +1,8 @@
 package webserver.config;
 
+import db.ArticleDao;
 import db.Database;
+import model.Article;
 import model.User;
 import webserver.SessionManager;
 import webserver.handler.Handler;
@@ -13,10 +15,13 @@ import java.util.Map;
 
 public class AppConfig {
     private static final Database database = new Database();
+    private static final ArticleDao articleDao = new ArticleDao();
 
     private static final Handler userHandler = new UserRequestHandler(database);
     private static final Handler loginHandler = new LoginRequestHandler(database);
     private static final Handler logoutHandler = new LogoutRequestHandler(database);
+
+    private static final Handler articleWriteHandler = new ArticleWriteHandler(articleDao);
 
     public static Map<String, Handler> getRouteMappings() {
         Map<String, Handler> mappings = new HashMap<>();
@@ -24,6 +29,8 @@ public class AppConfig {
         mappings.put("/user/create", userHandler);
         mappings.put("/user/login", loginHandler);
         mappings.put("/user/logout", logoutHandler);
+
+        mappings.put("/article/create", articleWriteHandler);
 
         Map<String, String> staticPages = Map.of(
                 "/", Config.DEFAULT_PAGE,
