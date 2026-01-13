@@ -1,11 +1,11 @@
 package utils;
 
+import model.MultipartPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.config.Pair;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class HttpRequestUtils {
     private static final Logger logger = LoggerFactory.getLogger(HttpRequestUtils.class);
@@ -110,5 +110,58 @@ public class HttpRequestUtils {
         String key = headerLine.substring(0, index).trim();
         String value = headerLine.substring(index + 1).trim();
         return new Pair(key, value);
+    }
+
+    // 멀티파트 파싱
+    public static List<MultipartPart> parseMultipartBody(byte[] body, String boundary) {
+        List<MultipartPart> parts = new ArrayList<>();
+        String delimiter = "--" + boundary;
+        byte[] delimiterBytes = delimiter.getBytes();
+
+        int start = 0;
+        while ((start = findIndex(body, delimiterBytes, start)) != -1) {
+            start += delimiterBytes.length;
+
+            if (start + 1 < body.length && body[start] == '-' && body[start + 1] == '-') break;
+
+            int headerEnd = findIndex(body, new byte[]{13, 10, 13, 10}, start);
+            if (headerEnd == -1) break;
+
+            String headerSection = new String(body, start + 2, headerEnd - start - 2);
+
+            String name = extractAttribute(headerSection, "name");
+            String fileName = extractAttribute(headerSection, "filename");
+            String contentType = extractAttribute(headerSection, "Content-Type");
+
+            int nextDelimiter = findIndex(body, delimiterBytes, headerEnd + 4);
+            if (nextDelimiter == -1) break;
+
+            byte[] partData = Arrays.copyOfRange(body, headerEnd + 4, nextDelimiter - 2);
+
+            parts.add(new MultipartPart(name, fileName, contentType, partData));
+            start = nextDelimiter;
+        }
+        return parts;
+    }
+
+    private static int findIndex(byte[] source, byte[] target, int start) {
+        for (int i = start; i <= source.length - target.length; i++) {
+            boolean match = true;
+            for (int j = 0; j < target.length; j++) {
+                if (source[i + j] != target[j]) {
+                    match = false;
+                    break;
+                }
+            }
+            if (match) return i;
+        }
+        return -1;
+    }
+
+    private static String extractAttribute(String header, String attr) {
+        int start = header.indexOf(attr + "=\"");
+        if (start == -1) return null;
+        start += attr.length() + 2;
+        return header.substring(start, header.indexOf("\"", start));
     }
 }
