@@ -7,5 +7,3 @@ public record Article(Long id, String writer, String title, String contents, Loc
         this(null, writer, title, contents, null);
     }
 }
-
-// TODO writer -> writerId로 변경
