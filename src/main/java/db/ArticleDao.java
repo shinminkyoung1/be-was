@@ -10,7 +10,7 @@ public class ArticleDao {
 
     // 게시글 저장
     public void insert(Article article) {
-        String sql = "INSERT INTO ARTICLE (writer, title, contents) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO ARTICLE (writer, title, contents, imagePath) VALUES (?, ?, ?, ?)";
 
         try (Connection connection = ConnectionManager.getConnection();
         PreparedStatement pstmt = connection.prepareStatement(sql)) {
@@ -18,6 +18,7 @@ public class ArticleDao {
             pstmt.setString(1, article.writer());
             pstmt.setString(2, article.title());
             pstmt.setString(3, article.contents());
+            pstmt.setString(4, article.imagePath());
 
             pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -40,7 +41,8 @@ public class ArticleDao {
                         rs.getString("writer"),
                         rs.getString("title"),
                         rs.getString("contents"),
-                        rs.getTimestamp("createdAt").toLocalDateTime()
+                        rs.getTimestamp("createdAt").toLocalDateTime(),
+                        rs.getString("imagePath")
                 );
                 articles.add(article);
             }
