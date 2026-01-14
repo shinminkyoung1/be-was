@@ -8,10 +8,7 @@ import utils.HttpRequestUtils;
 import utils.IOUtils;
 import webserver.config.Pair;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -34,9 +31,8 @@ public class HttpRequest {
     private boolean isChunked = false;
 
     public HttpRequest(InputStream in) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
 
-        String line = br.readLine();
+        String line = readLine(in);
         if (line == null) return;
 
         // Request Line 파싱
@@ -51,7 +47,7 @@ public class HttpRequest {
         }
 
         // 나머지 헤더 정보 읽음
-        while ((line = br.readLine()) != null && !line.isEmpty()) {
+        while ((line = readLine(in)).isEmpty()) {
             Pair pair = HttpRequestUtils.parseHeader(line);
             if (pair != null) {
                 headers.put(pair.key, pair.value);
@@ -70,6 +66,24 @@ public class HttpRequest {
         if (contentLength > 0) {
             parseBody(in);
         }
+    }
+
+    private String readLine(InputStream in) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        int b;
+        while ((b = in.read()) != -1) {
+            if (b == '\r') {
+                int next = in.read();
+                if (next == '\n') break;
+                baos.write(b);
+                baos.write(next);
+            } else if (b == '\n') {
+                break;
+            } else {
+                baos.write(b);
+            }
+        }
+        return baos.toString(StandardCharsets.UTF_8);
     }
 
     private void parseBody(InputStream in) throws IOException {
