@@ -33,14 +33,25 @@ public class HttpResponse {
     }
 
     public void sendError(HttpStatus status) {
-        if (isCommitted) {
-            logger.warn("The error page cannot be sent because the response has already started.");
-            return;
-        }
+        if (isCommitted) return;
         this.status = status;
-        byte[] body = status.getErrorMessageBytes();
-        setHttpHeader("text/plain", body.length);
-        processWrite(body);
+
+        String errorPagePath = "/error/" + status.getCode() + ".html";
+        File file = new File(Config.STATIC_RESOURCE_PATH + errorPagePath);
+
+        try {
+            byte[] body;
+            if (file.exists()) {
+                body = Files.readAllBytes(file.toPath());
+                setHttpHeader("text/html", body.length);
+            } else {
+                body = status.getMessage().getBytes(Config.UTF_8);
+                setHttpHeader("text/plain", body.length);
+            }
+            processWrite(body);
+        } catch (IOException e) {
+            logger.error("Error while sending error page: {}", e.getMessage());
+        }
     }
 
     public void sendRedirect(String redirectUrl) {
