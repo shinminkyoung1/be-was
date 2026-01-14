@@ -74,7 +74,9 @@ public class HttpResponse {
 
                 body = content.getBytes(Config.UTF_8);
             }
-            String contentType = MimeType.getContentType(HttpRequestUtils.getFileExtension(url));
+
+            String extension = HttpRequestUtils.getFileExtension(url);
+            String contentType = MimeType.getContentType(extension);
             this.status = HttpStatus.OK;
             setHttpHeader(contentType, body.length);
             processWrite(body);
