@@ -51,6 +51,11 @@ public class HttpResponse {
 
     public void fileResponse(String url, User loginUser, Map<String, String> additionalModel) {
         File file = new File(Config.STATIC_RESOURCE_PATH + url);
+
+        if (!file.exists() && !url.contains(".")) {
+            file = new File(Config.STATIC_RESOURCE_PATH + url + ".html");
+        }
+
         if (!file.exists()) {
             sendError(HttpStatus.NOT_FOUND);
             return;
@@ -58,9 +63,10 @@ public class HttpResponse {
 
         try {
             byte[] body = Files.readAllBytes(file.toPath());
+            String fileName = file.getName();
 
             // 동적 HTML 처리
-            if (url.endsWith(".html")) {
+            if (fileName.endsWith(".html")) {
                 String content = new String(body, Config.UTF_8);
 
                 Map<String, String> model = new HashMap<>();
@@ -69,6 +75,8 @@ public class HttpResponse {
                 if (additionalModel != null) {
                     model.putAll(additionalModel);
                 }
+
+                logger.debug("Rendering HTML with model: {}", model.keySet());
 
                 content = TemplateEngine.render(content, model);
 

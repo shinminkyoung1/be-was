@@ -41,8 +41,7 @@ public class AppConfig {
 
         Map<String, String> staticPages = Map.of(
                 "/registration", Config.REGISTRATION_PAGE,
-                "/login", Config.LOGIN_PAGE,
-                "/mypage", Config.MY_PAGE
+                "/login", Config.LOGIN_PAGE
         );
 
         staticPages.forEach((path, filePath) ->

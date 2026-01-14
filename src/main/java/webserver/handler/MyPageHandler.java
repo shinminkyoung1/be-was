@@ -4,6 +4,7 @@ import db.UserDao;
 import model.User;
 import webserver.HttpRequest;
 import webserver.HttpResponse;
+import webserver.PageRender;
 import webserver.SessionManager;
 import webserver.config.Config;
 
@@ -28,14 +29,9 @@ public class MyPageHandler implements Handler {
             return;
         }
 
-        String profileImage = loginUser.profileImage();
-
-        if (profileImage == null || profileImage.isEmpty()) {
-            profileImage = "/img/basic_profileImage.svg";
-        }
-
         Map<String, String> model = new HashMap<>();
-        model.put("user_profile_image", profileImage);
+        model.put("user_profile_image", PageRender.renderProfile(loginUser));
+        model.put("user_name", loginUser.name());
 
         response.fileResponse(Config.MY_PAGE, loginUser, model);
     }

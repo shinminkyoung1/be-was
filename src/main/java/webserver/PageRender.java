@@ -80,4 +80,18 @@ public class PageRender {
 
         return sb.toString();
     }
+
+    public static String renderProfile(User user) {
+        StringBuilder sb = new StringBuilder();
+
+        String profileImage = (user.profileImage() != null && !user.profileImage().isEmpty())
+                ? user.profileImage()
+                : "/img/basic_profileImage.svg";
+
+        sb.append("<img class=\"profile\" src=\"")
+                .append(profileImage)
+                .append("\" id=\"profile-preview\" />");
+
+        return sb.toString();
+    }
 }
