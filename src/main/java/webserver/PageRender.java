@@ -90,7 +90,7 @@ public class PageRender {
 
         sb.append("<img class=\"profile\" src=\"")
                 .append(profileImage)
-                .append("\" id=\"profile-preview\" />");
+                .append("\" id=\"profile-preview\" style=\"width: 100%; height: 100%; object-fit: cover;\"/>");
 
         return sb.toString();
     }
