@@ -46,23 +46,34 @@ public class PageRender {
 
         StringBuilder sb = new StringBuilder();
         for (Article article : articles) {
-            sb.append("<div class=\"post\">")
-                    .append("  <div class=\"post__account\">")
-                    .append("    <img class=\"post__account__img\" src=\"./img/default-avatar.svg\" />")
-                    .append("    <p class=\"post__account__nickname\">").append(article.writer()).append("</p>")
-                    .append("  </div>")
-                    .append("  <div class=\"post__title\" style=\"font-weight:bold; margin: 10px 0;\">")
-                    .append(article.title())
-                    .append("  </div>")
-                    .append("  <p class=\"post__article\">").append(article.contents()).append("</p>")
-                    .append("  <div class=\"post__menu\">")
-                    .append("    <ul class=\"post__menu__personal\">")
-                    .append("      <li><button class=\"post__menu__btn\"><img src=\"./img/like.svg\" /></button></li>")
-                    .append("    </ul>")
-                    .append("  </div>")
-                    .append("</div>")
-                    .append("<hr style=\"border: 0.5px solid #eee; margin: 40px 0;\">"); // 게시글 구분선
+            sb.append("<div class=\"post\">");
+
+            // 작성자 정보
+            sb.append("  <div class=\"post__account\">");
+            sb.append("    <img class=\"post__account__img\" src=\"/img/default_user.png\" />");
+            sb.append("    <p class=\"post__account__nickname\">").append(article.writer()).append("</p>");
+            sb.append("  </div>");
+
+            // 이미지 (imagePath 있을 경우만)
+            if (article.imagePath() != null && !article.imagePath().isEmpty()) {
+                sb.append("  <img class=\"post__img\" src=\"").append(article.imagePath()).append("\" />");
+            }
+
+            // 좋아요, 공유, 북마크
+            sb.append("  <div class=\"post__menu\">");
+            sb.append("    <ul class=\"post__menu__personal\">");
+            sb.append("      <li><button class=\"post__menu__btn\"><img src=\"/img/like.svg\" /></button></li>");
+            sb.append("      <li><button class=\"post__menu__btn\"><img src=\"/img/comment.svg\" /></button></li>");
+            sb.append("    </ul>");
+            sb.append("    <button class=\"post__menu__btn\"><img src=\"/img/bookMark.svg\" /></button>");
+            sb.append("  </div>");
+
+            // 4. 본문 내용
+            sb.append("  <p class=\"post__article\">").append(article.contents()).append("</p>");
+
+            sb.append("</div>");
         }
+
         return sb.toString();
     }
 }
