@@ -44,7 +44,7 @@ public class ProfileUpdateHandler implements Handler {
     }
 
     private String saveUploadedFile(MultipartPart part) {
-        String uploadDir = Config.STATIC_RESOURCE_PATH + "/uploads";
+        String uploadDir = Config.STATIC_RESOURCE_PATH + "/uploads/";
         File dir = new File(uploadDir);
         if (!dir.exists()) {
             dir.mkdirs();
