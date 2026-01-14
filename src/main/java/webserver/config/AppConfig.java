@@ -20,7 +20,10 @@ public class AppConfig {
     private static final Handler logoutHandler = new LogoutRequestHandler(userDao);
 
     private static final Handler articleWriteHandler = new ArticleWriteHandler(articleDao, userDao);
-    private static final Handler articleIndexHandler = new ArticleIndexHandler(articleDao);
+    private static final Handler articleIndexHandler = new ArticleIndexHandler(articleDao, userDao);
+
+    private static final Handler myPageHandler = new MyPageHandler(userDao);
+    private static final Handler profileUpdateHandler = new ProfileUpdateHandler(userDao);
 
     public static Map<String, Handler> getRouteMappings() {
         Map<String, Handler> mappings = new HashMap<>();
@@ -33,11 +36,13 @@ public class AppConfig {
         mappings.put("/", articleIndexHandler);
         mappings.put("/index.html", articleIndexHandler);
 
+        mappings.put("/mypage", myPageHandler);
+        mappings.put("/user/update", profileUpdateHandler);
+
         Map<String, String> staticPages = Map.of(
                 "/registration", Config.REGISTRATION_PAGE,
                 "/login", Config.LOGIN_PAGE,
-                "/mypage", Config.MY_PAGE,
-                "/article", Config.ARTICLE_PAGE
+                "/mypage", Config.MY_PAGE
         );
 
         staticPages.forEach((path, filePath) ->

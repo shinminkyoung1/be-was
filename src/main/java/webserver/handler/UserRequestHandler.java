@@ -49,7 +49,7 @@ public class UserRequestHandler implements Handler {
             return;
         }
 
-        User user = new User(userId, password, name, email);
+        User user = new User(userId, password, name, email, null);
         userDao.insert(user);
         logger.debug("Saved User: {}", user);
         response.sendRedirect(Config.DEFAULT_PAGE);

@@ -7,6 +7,9 @@ import webserver.HttpResponse;
 import webserver.SessionManager;
 import webserver.config.Config;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class MyPageHandler implements Handler {
 
     private final UserDao userDao;
@@ -25,6 +28,15 @@ public class MyPageHandler implements Handler {
             return;
         }
 
-        response.fileResponse(Config.MY_PAGE, loginUser, null);
+        String profileImage = loginUser.profileImage();
+
+        if (profileImage == null || profileImage.isEmpty()) {
+            profileImage = "/img/basic_profileImage.svg";
+        }
+
+        Map<String, String> model = new HashMap<>();
+        model.put("user_profile_image", profileImage);
+
+        response.fileResponse(Config.MY_PAGE, loginUser, model);
     }
 }

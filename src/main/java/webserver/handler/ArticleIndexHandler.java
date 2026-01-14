@@ -23,9 +23,11 @@ public class ArticleIndexHandler implements Handler {
     private static final Logger logger = LoggerFactory.getLogger(ArticleIndexHandler.class);
 
     private final ArticleDao articleDao;
+    private final UserDao userDao;
 
-    public ArticleIndexHandler(ArticleDao articleDao) {
+    public ArticleIndexHandler(ArticleDao articleDao, UserDao userDao) {
         this.articleDao = articleDao;
+        this.userDao = userDao;
     }
 
     @Override
@@ -42,7 +44,7 @@ public class ArticleIndexHandler implements Handler {
             model.put("header_items", PageRender.renderHeader(loginUser));
 
             List<Article> articles = articleDao.selectAll();
-            model.put("posts_list", PageRender.renderArticleList(articles));
+            model.put("posts_list", PageRender.renderArticleList(articles, userDao));
 
             String renderedHtml = TemplateEngine.render(content, model);
 
