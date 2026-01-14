@@ -49,7 +49,7 @@ public class ArticleWriteHandler implements Handler {
             }
         }
 
-        Article article = new Article(writer, title, contents);
+        Article article = new Article(writer, title, contents, imagePath);
 
         articleDao.insert(article);
 

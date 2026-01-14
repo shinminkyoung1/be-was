@@ -40,6 +40,8 @@ public class UserRequestHandler implements Handler {
         String name = request.getParameter("name");
         String email = request.getParameter("email");
 
+        logger.debug("Parsing Check - ID: {}, PW: {}, Name: {}, Email: {}", userId, password, name, email);
+
         // 유효성 검사
         if (isAnyEmpty(userId, password, name)) {
             logger.warn("Registration failed: Missing required parameters.");

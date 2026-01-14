@@ -47,16 +47,19 @@ public class HttpRequest {
         }
 
         // 나머지 헤더 정보 읽음
-        while ((line = readLine(in)).isEmpty()) {
+        while (true) {
+            line = readLine(in);
+            if (line == null || line.isEmpty()) {
+                break;
+            }
+
             Pair pair = HttpRequestUtils.parseHeader(line);
             if (pair != null) {
                 headers.put(pair.key, pair.value);
-
                 if ("Content-Length".equalsIgnoreCase(pair.key)) {
                     this.contentLength = Integer.parseInt(pair.value);
                 }
 
-                // 쿠키 파싱
                 if ("Cookie".equalsIgnoreCase(pair.key)) {
                     this.cookies = HttpRequestUtils.parseCookies(pair.value);
                 }
@@ -72,22 +75,27 @@ public class HttpRequest {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         int b;
         while ((b = in.read()) != -1) {
-            if (b == '\r') {
-                int next = in.read();
-                if (next == '\n') break;
-                baos.write(b);
-                baos.write(next);
-            } else if (b == '\n') {
-                break;
-            } else {
-                baos.write(b);
-            }
+            if (b == '\n') break;
+            if (b != '\r') baos.write(b);
         }
+        if (b == -1 && baos.size() == 0) return null;
         return baos.toString(StandardCharsets.UTF_8);
     }
 
     private void parseBody(InputStream in) throws IOException {
-        byte[] body = in.readNBytes(contentLength);
+        logger.debug("Starting parseBody. Content-Length to read: {}", contentLength);
+
+        byte[] body = new byte[contentLength];
+        int totalRead = 0;
+        while (totalRead < contentLength) {
+            int read = in.read(body, totalRead, contentLength - totalRead);
+            if (read == -1) break;
+            totalRead += read;
+        }
+
+        String bodyStr = new String(body, StandardCharsets.UTF_8);
+        logger.debug("Raw Body content: [{}]", bodyStr);
+
         String contentType = headers.get("Content-Type");
 
         if (contentType != null && contentType.contains("multipart/form-data")) {
@@ -101,7 +109,6 @@ public class HttpRequest {
             }
 
         } else {
-            String bodyStr = new String(body, StandardCharsets.UTF_8);
             this.params.putAll(HttpRequestUtils.parseParameters(bodyStr));
         }
     }
