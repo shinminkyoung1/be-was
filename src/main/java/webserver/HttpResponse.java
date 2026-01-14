@@ -67,6 +67,12 @@ public class HttpResponse {
             file = new File(Config.STATIC_RESOURCE_PATH + url + ".html");
         }
 
+        if (file.isDirectory()) {
+            logger.warn("Request path is a directory: {}", url);
+            sendError(HttpStatus.NOT_FOUND);
+            return;
+        }
+
         if (!file.exists()) {
             sendError(HttpStatus.NOT_FOUND);
             return;
