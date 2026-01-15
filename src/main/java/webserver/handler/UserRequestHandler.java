@@ -49,6 +49,13 @@ public class UserRequestHandler implements Handler {
             return;
         }
 
+        // 최소 4글자 이상 검증
+        if (!isValidInput(userId) || !isValidInput(name) || !isValidInput(password)) {
+            response.addHeader("Set-Cookie", "reg_error=invalid_length; Path=/");
+            response.sendRedirect(Config.REGISTRATION_PAGE);
+            return;
+        }
+
         User user = new User(userId, password, name, email, null);
         userDao.insert(user);
         logger.debug("Saved User: {}", user);
@@ -62,5 +69,9 @@ public class UserRequestHandler implements Handler {
             }
         }
         return false;
+    }
+
+    private boolean isValidInput(String input) {
+        return input != null && input.trim().length() >= 4;
     }
 }
