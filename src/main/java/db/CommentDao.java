@@ -2,10 +2,7 @@ package db;
 
 import model.Comment;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,5 +32,21 @@ public class CommentDao {
             throw new RuntimeException("Failed to get comment", e);
         }
         return comments;
+    }
+
+    // 댓글 작성
+    public void insert(Comment comment) {
+        String sql = "INSERT INTO COMMENT (articleId, writer, text, createdAt) VALUES (?, ?, ?, ?)";
+        try (Connection connection = ConnectionManager.getConnection();
+             PreparedStatement pstmt = connection.prepareStatement(sql)) {
+
+            pstmt.setLong(1, comment.articleId());
+            pstmt.setString(2, comment.writer());
+            pstmt.setString(3, comment.text());
+            pstmt.setTimestamp(4, Timestamp.valueOf(comment.createdAt()));
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to save comment", e);
+        }
     }
 }
