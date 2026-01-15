@@ -2,6 +2,7 @@ package webserver;
 
 import db.UserDao;
 import model.Article;
+import model.Comment;
 import model.User;
 
 import java.util.List;
@@ -90,7 +91,7 @@ public class PageRender {
 
         sb.append("<img class=\"profile\" src=\"")
                 .append(profileImage)
-                .append("\" id=\"profile-preview\" style=\"width: 100%; height: 100%; object-fit: cover;\"/>");
+                .append("\" id=\"profile-preview\" style=\"width: 100%; height: 100%; border-radius: 50%; object-fit: cover;\"/>");
 
         return sb.toString();
     }
@@ -149,11 +150,14 @@ public class PageRender {
 
         StringBuilder sb = new StringBuilder();
         int totalCount = comments.size();
-        int displayLimit = Math.min(totalCount, 3); // 기본 3개만 노출
 
-        for (int i = 0; i < displayLimit; i++) {
-            model.Comment c = comments.get(i);
-            sb.append("<li class=\"comment__item\">")
+        for (int i=0; i<totalCount; i++) {
+            Comment c = comments.get(i);
+
+            String hiddenClass = (i >= 3) ? "comment__item--hidden" : "";
+            String hiddenStyle = (i >= 3) ? "style=\"display: none;\"" : "";
+
+            sb.append("<li class=\"comment__item ").append(hiddenClass).append("\" ").append(hiddenStyle).append(">")
                     .append("  <div class=\"comment__item__user\">")
                     .append("    <img class=\"comment__item__user__img\" src=\"/img/basic_profileImage.svg\" />")
                     .append("    <p class=\"comment__item__user__nickname\">").append(c.writer()).append("</p>")
@@ -162,11 +166,13 @@ public class PageRender {
                     .append("</li>");
         }
 
-        // 3개를 초과할 경우에만 '모든 댓글 보기' 버튼 추가
-        if (totalCount > 3) {
-            sb.append("<button id=\"show-all-btn\" class=\"btn btn_ghost btn_size_m\">")
-                    .append("모든 댓글 보기(").append(totalCount).append("개)")
-                    .append("</button>");
+            // 3개를 초과할 경우에만 '모든 댓글 보기' 버튼 추가
+            if (totalCount > 3) {
+                sb.append("<li class=\"comment__item\" style=\"list-style: none;\">")
+                        .append("  <button id=\"show-all-btn\" onclick=\"showAllComments()\" class=\"btn btn_ghost btn_size_m\" style=\"width: 100%;\">")
+                        .append("    모든 댓글 보기(").append(totalCount).append("개)")
+                        .append("  </button>")
+                        .append("</li>");
         }
 
         return sb.toString();

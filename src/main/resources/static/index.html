@@ -24,5 +24,21 @@
         {{post_nav}}
       </div>
     </div>
+    <script>
+      function showAllComments() {
+          // 숨겨져 있던 모든 댓글
+          const hiddenComments = document.querySelectorAll('.comment__item--hidden');
+
+          // 각 아이템의 display를 block으로 변경하여 노출
+          hiddenComments.forEach(item => {
+              item.style.display = 'flex';
+          });
+
+          const btnContainer = document.getElementById('show-all-container');
+          if (btnContainer) {
+              btnContainer.style.display = 'none';
+          }
+      }
+    </script>
   </body>
 </html>
