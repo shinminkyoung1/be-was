@@ -1,22 +1,29 @@
 package webserver.config;
 
+import db.ArticleDao;
 import db.Database;
+import db.UserDao;
+import model.Article;
 import model.User;
 import webserver.SessionManager;
-import webserver.handler.Handler;
-import webserver.handler.LoginRequestHandler;
-import webserver.handler.LogoutRequestHandler;
-import webserver.handler.UserRequestHandler;
+import webserver.handler.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class AppConfig {
-    private static final Database database = new Database();
+    private static final UserDao userDao = new UserDao();
+    private static final ArticleDao articleDao = new ArticleDao();
 
-    private static final Handler userHandler = new UserRequestHandler(database);
-    private static final Handler loginHandler = new LoginRequestHandler(database);
-    private static final Handler logoutHandler = new LogoutRequestHandler(database);
+    private static final Handler userHandler = new UserRequestHandler(userDao);
+    private static final Handler loginHandler = new LoginRequestHandler(userDao);
+    private static final Handler logoutHandler = new LogoutRequestHandler(userDao);
+
+    private static final Handler articleWriteHandler = new ArticleWriteHandler(articleDao, userDao);
+    private static final Handler articleIndexHandler = new ArticleIndexHandler(articleDao, userDao);
+
+    private static final Handler myPageHandler = new MyPageHandler(userDao);
+    private static final Handler profileUpdateHandler = new ProfileUpdateHandler(userDao);
 
     public static Map<String, Handler> getRouteMappings() {
         Map<String, Handler> mappings = new HashMap<>();
@@ -25,24 +32,30 @@ public class AppConfig {
         mappings.put("/user/login", loginHandler);
         mappings.put("/user/logout", logoutHandler);
 
+        mappings.put("/article/write", articleWriteHandler);
+        mappings.put("/", articleIndexHandler);
+        mappings.put("/index.html", articleIndexHandler);
+
+        mappings.put("/mypage", myPageHandler);
+        mappings.put("/user/update", profileUpdateHandler);
+
         Map<String, String> staticPages = Map.of(
-                "/", Config.DEFAULT_PAGE,
                 "/registration", Config.REGISTRATION_PAGE,
                 "/login", Config.LOGIN_PAGE,
-                "/mypage", Config.MY_PAGE
+                "/article", Config.ARTICLE_PAGE
         );
 
         staticPages.forEach((path, filePath) ->
                 mappings.put(path, (request, response) -> {
                     String sessionId = request.getCookie("sid");
-                    User loginUser = SessionManager.getLoginUser(sessionId, database);
-                    response.fileResponse(filePath, loginUser);
+                    User loginUser = SessionManager.getLoginUser(sessionId, userDao);
+                    response.fileResponse(filePath, loginUser, null);
                 })
         );
         return mappings;
     }
 
-    public static Database getDatabase() {
-        return database;
+    public static UserDao getUserDao() {
+        return userDao;
     }
 }

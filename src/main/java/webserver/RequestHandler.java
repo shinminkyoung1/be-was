@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.Socket;
 
 import db.Database;
+import db.UserDao;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,12 +16,12 @@ public class RequestHandler implements Runnable {
 
     private Socket connection;
     private final RouteGuide routeGuide;
-    private final Database database;
+    private final UserDao userDao;
 
-    public RequestHandler(Socket connectionSocket, RouteGuide routeGuide, Database database) {
+    public RequestHandler(Socket connectionSocket, RouteGuide routeGuide, UserDao userDao) {
         this.connection = connectionSocket;
         this.routeGuide = routeGuide;
-        this.database = database;
+        this.userDao = userDao;
     }
 
     public void run() {
@@ -36,7 +37,7 @@ public class RequestHandler implements Runnable {
 
             // 유저 정보 추출
             String sessionId = request.getCookie("sid");
-            User loginUser = SessionManager.getLoginUser(sessionId, database);
+            User loginUser = SessionManager.getLoginUser(sessionId, userDao);
 
             String path = request.getPath();
             if (path == null) return;
@@ -55,7 +56,7 @@ public class RequestHandler implements Runnable {
                 handler.process(request, response);
             } else {
                 // 없으면 정적 파일 서빙
-                response.fileResponse(path, loginUser);
+                response.fileResponse(path, loginUser, null);
             }
 
         } catch (IOException e) {

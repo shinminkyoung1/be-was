@@ -1,5 +1,6 @@
 package webserver;
 
+import model.MultipartPart;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,14 +8,9 @@ import utils.HttpRequestUtils;
 import utils.IOUtils;
 import webserver.config.Pair;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 public class HttpRequest {
     private static final Logger logger = LoggerFactory.getLogger(HttpRequest.class);
@@ -27,6 +23,7 @@ public class HttpRequest {
     private Map<String, String> cookies = new HashMap<>();
     private Map<String, String> headers = new HashMap<>();
     private Map<String, String> params = new HashMap<>();
+    private List<MultipartPart> multipartParts = new ArrayList<>();
 
     // 바디 길이를 저장
     private int contentLength = 0;
@@ -34,9 +31,8 @@ public class HttpRequest {
     private boolean isChunked = false;
 
     public HttpRequest(InputStream in) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
 
-        String line = br.readLine();
+        String line = readLine(in);
         if (line == null) return;
 
         // Request Line 파싱
@@ -51,36 +47,69 @@ public class HttpRequest {
         }
 
         // 나머지 헤더 정보 읽음
-        while ((line = br.readLine()) != null && !line.isEmpty()) {
+        while (true) {
+            line = readLine(in);
+            if (line == null || line.isEmpty()) {
+                break;
+            }
+
             Pair pair = HttpRequestUtils.parseHeader(line);
             if (pair != null) {
                 headers.put(pair.key, pair.value);
-
                 if ("Content-Length".equalsIgnoreCase(pair.key)) {
                     this.contentLength = Integer.parseInt(pair.value);
                 }
-                if ("Transfer-Encoding".equalsIgnoreCase(pair.key) && "chunked".equalsIgnoreCase(pair.value)) {
-                    this.isChunked = true;
-                }
 
-                // 쿠키 파싱
                 if ("Cookie".equalsIgnoreCase(pair.key)) {
                     this.cookies = HttpRequestUtils.parseCookies(pair.value);
                 }
             }
         }
 
-        if (hasRequestBody()) {
-            if (isChunked) {
-                logger.debug("Body is chunked. Reading chunked data");
-                String body = readChunkedBody(br);
-                this.params.putAll(HttpRequestUtils.parseParameters(body));
-            } else if (contentLength > 0) {
-                String body = IOUtils.readData(br, contentLength);
-                this.params.putAll(HttpRequestUtils.parseParameters(body));
-            } else {
-                logger.warn("POST request missing Content-Length or Transfer-Encoding. Path: {}", path);
+        if (contentLength > 0) {
+            parseBody(in);
+        }
+    }
+
+    private String readLine(InputStream in) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        int b;
+        while ((b = in.read()) != -1) {
+            if (b == '\n') break;
+            if (b != '\r') baos.write(b);
+        }
+        if (b == -1 && baos.size() == 0) return null;
+        return baos.toString(StandardCharsets.UTF_8);
+    }
+
+    private void parseBody(InputStream in) throws IOException {
+        logger.debug("Starting parseBody. Content-Length to read: {}", contentLength);
+
+        byte[] body = new byte[contentLength];
+        int totalRead = 0;
+        while (totalRead < contentLength) {
+            int read = in.read(body, totalRead, contentLength - totalRead);
+            if (read == -1) break;
+            totalRead += read;
+        }
+
+        String bodyStr = new String(body, StandardCharsets.UTF_8);
+        logger.debug("Raw Body content: [{}]", bodyStr);
+
+        String contentType = headers.get("Content-Type");
+
+        if (contentType != null && contentType.contains("multipart/form-data")) {
+            String boundary = contentType.split("boundary=")[1];
+            this.multipartParts = HttpRequestUtils.parseMultipartBody(body, boundary);
+
+            for (MultipartPart part : multipartParts) {
+                if (!part.isFile()) {
+                    params.put(part.name(), new String(part.data(), StandardCharsets.UTF_8));
+                }
             }
+
+        } else {
+            this.params.putAll(HttpRequestUtils.parseParameters(bodyStr));
         }
     }
 
@@ -148,5 +177,9 @@ public class HttpRequest {
     public String getCookie(String name) {
         if (this.cookies == null) return null;
         return cookies.get(name);
+    }
+
+    public List<MultipartPart> getMultipartParts() {
+        return multipartParts;
     }
 }

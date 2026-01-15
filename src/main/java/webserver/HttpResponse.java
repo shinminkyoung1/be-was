@@ -33,14 +33,25 @@ public class HttpResponse {
     }
 
     public void sendError(HttpStatus status) {
-        if (isCommitted) {
-            logger.warn("The error page cannot be sent because the response has already started.");
-            return;
-        }
+        if (isCommitted) return;
         this.status = status;
-        byte[] body = status.getErrorMessageBytes();
-        setHttpHeader("text/plain", body.length);
-        processWrite(body);
+
+        String errorPagePath = "/error/" + status.getCode() + ".html";
+        File file = new File(Config.STATIC_RESOURCE_PATH + errorPagePath);
+
+        try {
+            byte[] body;
+            if (file.exists()) {
+                body = Files.readAllBytes(file.toPath());
+                setHttpHeader("text/html", body.length);
+            } else {
+                body = status.getMessage().getBytes(Config.UTF_8);
+                setHttpHeader("text/plain", body.length);
+            }
+            processWrite(body);
+        } catch (IOException e) {
+            logger.error("Error while sending error page: {}", e.getMessage());
+        }
     }
 
     public void sendRedirect(String redirectUrl) {
@@ -49,8 +60,19 @@ public class HttpResponse {
         processWrite(new byte[0]); // 바디 없음
     }
 
-    public void fileResponse(String url, User loginUser) {
+    public void fileResponse(String url, User loginUser, Map<String, String> additionalModel) {
         File file = new File(Config.STATIC_RESOURCE_PATH + url);
+
+        if (!file.exists() && !url.contains(".")) {
+            file = new File(Config.STATIC_RESOURCE_PATH + url + ".html");
+        }
+
+        if (file.isDirectory()) {
+            logger.warn("Request path is a directory: {}", url);
+            sendError(HttpStatus.NOT_FOUND);
+            return;
+        }
+
         if (!file.exists()) {
             sendError(HttpStatus.NOT_FOUND);
             return;
@@ -58,19 +80,28 @@ public class HttpResponse {
 
         try {
             byte[] body = Files.readAllBytes(file.toPath());
+            String fileName = file.getName();
 
             // 동적 HTML 처리
-            if (url.endsWith(".html")) {
+            if (fileName.endsWith(".html")) {
                 String content = new String(body, Config.UTF_8);
 
                 Map<String, String> model = new HashMap<>();
                 model.put("header_items", PageRender.renderHeader(loginUser));
 
+                if (additionalModel != null) {
+                    model.putAll(additionalModel);
+                }
+
+                logger.debug("Rendering HTML with model: {}", model.keySet());
+
                 content = TemplateEngine.render(content, model);
 
                 body = content.getBytes(Config.UTF_8);
             }
-            String contentType = MimeType.getContentType(HttpRequestUtils.getFileExtension(url));
+
+            String extension = HttpRequestUtils.getFileExtension(url);
+            String contentType = MimeType.getContentType(extension);
             this.status = HttpStatus.OK;
             setHttpHeader(contentType, body.length);
             processWrite(body);
@@ -121,5 +152,17 @@ public class HttpResponse {
     private void setHttpHeader(String contentType, int contentLength) {
         addHeader("Content-Type", contentType + ";charset=" + Config.UTF_8);
         addHeader("Content-Length", String.valueOf(contentLength));
+    }
+
+    public void sendHtmlContent(String content) {
+        try {
+            byte[] body = content.getBytes(Config.UTF_8);
+            this.status = HttpStatus.OK;
+            setHttpHeader("text/html", body.length);
+            processWrite(body);
+        } catch (Exception e) {
+            logger.error("Error while encoding HTML content: {}", e.getMessage());
+            sendError(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

@@ -3,6 +3,7 @@ package webserver;
 import db.Database;
 import db.SessionDatabase;
 import db.SessionEntry;
+import db.UserDao;
 import model.User;
 
 import java.time.Duration;
@@ -18,7 +19,7 @@ public class SessionManager {
         return sessionId;
     }
 
-    public static User getSessionUser(String sessionId, Database database) {
+    public static User getSessionUser(String sessionId, UserDao userDao) {
         SessionEntry entry = SessionDatabase.find(sessionId);
         if (entry == null) return null;
 
@@ -28,10 +29,10 @@ public class SessionManager {
         }
 
         entry.updateLastAccessedTime();
-        return database.findUserById(entry.getUserId());
+        return userDao.findUserById(entry.getUserId());
     }
 
-    public static User getLoginUser(String sessionId, Database database) {
+    public static User getLoginUser(String sessionId, UserDao userDao) {
         if (sessionId == null) {
             return null;
         }
@@ -42,7 +43,7 @@ public class SessionManager {
         }
 
         String userId = entry.getUserId();
-        return database.findUserById(userId);
+        return userDao.findUserById(userId);
     }
 
     public static boolean isExpired(SessionEntry entry) {

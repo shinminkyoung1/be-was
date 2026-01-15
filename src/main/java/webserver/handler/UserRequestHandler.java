@@ -1,6 +1,7 @@
 package webserver.handler;
 
 import db.Database;
+import db.UserDao;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,10 +16,10 @@ import javax.xml.crypto.Data;
 public class UserRequestHandler implements Handler {
     public static final Logger logger = LoggerFactory.getLogger(UserRequestHandler.class);
 
-    private final Database database;
+    private final UserDao userDao;
 
-    public UserRequestHandler(Database database) {
-        this.database = database;
+    public UserRequestHandler(UserDao userDao) {
+        this.userDao = userDao;
     }
 
     @Override
@@ -39,6 +40,8 @@ public class UserRequestHandler implements Handler {
         String name = request.getParameter("name");
         String email = request.getParameter("email");
 
+        logger.debug("Parsing Check - ID: {}, PW: {}, Name: {}, Email: {}", userId, password, name, email);
+
         // 유효성 검사
         if (isAnyEmpty(userId, password, name)) {
             logger.warn("Registration failed: Missing required parameters.");
@@ -46,8 +49,8 @@ public class UserRequestHandler implements Handler {
             return;
         }
 
-        User user = new User(userId, password, name, email);
-        database.addUser(user);
+        User user = new User(userId, password, name, email, null);
+        userDao.insert(user);
         logger.debug("Saved User: {}", user);
         response.sendRedirect(Config.DEFAULT_PAGE);
     }
