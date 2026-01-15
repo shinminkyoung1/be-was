@@ -41,6 +41,6 @@ public class CommentWriteHandler implements  Handler{
             logger.error("Not correct format to articleId: {}", articleIdStr);
         }
 
-        response.sendRedirect(Config.DEFAULT_PAGE);
+        response.sendRedirect("/article/index?id=" + articleIdStr);
     }
 }
