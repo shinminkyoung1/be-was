@@ -37,11 +37,11 @@ public class LoginRequestHandler implements Handler {
 
         User user = userDao.findUserById(userId);
 
-        // 유저 없는 경우 로그인 실패
+        // 유저 없는 경우 회원가입으로 이동
         if (user == null) {
             logger.debug("Login Failed: User ID '{}' not found in Database", userId);
             // 알림을 위한 커스텀 헤더
-            response.addHeader("Set-Cookie", "login_error=true; Path=/; Max-Age=5"); // 5초만 유지
+            response.addHeader("Set-Cookie", "login_error=not_found; Path=/; Max-Age=10"); // 5초만 유지
             response.sendRedirect(Config.LOGIN_PAGE);
             return;
         }
