@@ -140,4 +140,73 @@ public class PageRender {
 
             return sb.toString();
     }
+
+    // 댓글 목록 렌더링 (최대 3개 노출 및 모든 댓글 보기 버튼)
+    public static String renderComments(List<model.Comment> comments) {
+        if (comments == null || comments.isEmpty()) {
+            return "<li class=\"comment__item\"><p class=\"comment__item__article\">아직 댓글이 없습니다.</p></li>";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        int totalCount = comments.size();
+        int displayLimit = Math.min(totalCount, 3); // 기본 3개만 노출
+
+        for (int i = 0; i < displayLimit; i++) {
+            model.Comment c = comments.get(i);
+            sb.append("<li class=\"comment__item\">")
+                    .append("  <div class=\"comment__item__user\">")
+                    .append("    <img class=\"comment__item__user__img\" src=\"/img/basic_profileImage.svg\" />")
+                    .append("    <p class=\"comment__item__user__nickname\">").append(c.writer()).append("</p>")
+                    .append("  </div>")
+                    .append("  <p class=\"comment__item__article\">").append(c.text()).append("</p>")
+                    .append("</li>");
+        }
+
+        // 3개를 초과할 경우에만 '모든 댓글 보기' 버튼 추가
+        if (totalCount > 3) {
+            sb.append("<button id=\"show-all-btn\" class=\"btn btn_ghost btn_size_m\">")
+                    .append("모든 댓글 보기(").append(totalCount).append("개)")
+                    .append("</button>");
+        }
+
+        return sb.toString();
+    }
+
+    // 하단 네비게이션 렌더링 (이전 글 / 댓글 작성 / 다음 글)
+    public static String renderPostNav(Long prevId, Long nextId) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("<nav class=\"nav\">")
+                .append("  <ul class=\"nav__menu\">");
+
+        // [이전 글] 버튼
+        if (prevId != null) {
+            sb.append("    <li class=\"nav__menu__item\">")
+                    .append("      <a class=\"nav__menu__item__btn\" href=\"/article/index?id=").append(prevId).append("\">")
+                    .append("        <img class=\"nav__menu__item__img\" src=\"./img/ci_chevron-left.svg\" /> 이전 글")
+                    .append("      </a>")
+                    .append("    </li>");
+        } else {
+            // 이전 글이 없으면 비활성화 스타일 (또는 빈 태그)
+            sb.append("    <li class=\"nav__menu__item disabled\"><span class=\"nav__menu__item__btn\">이전 글 없음</span></li>");
+        }
+
+        // [댓글 작성] 버튼 (모달 연결 또는 작성 페이지 이동)
+        sb.append("    <li class=\"nav__menu__item\"><a class=\"btn btn_ghost btn_size_m\" href=\"/comment/write\">댓글 작성</a></li>");
+
+        // [다음 글] 버튼
+        if (nextId != null) {
+            sb.append("    <li class=\"nav__menu__item\">")
+                    .append("      <a class=\"nav__menu__item__btn\" href=\"/article/index?id=").append(nextId).append("\">")
+                    .append("        다음 글 <img class=\"nav__menu__item__img\" src=\"./img/ci_chevron-right.svg\" />")
+                    .append("      </a>")
+                    .append("    </li>");
+        } else {
+            sb.append("    <li class=\"nav__menu__item disabled\"><span class=\"nav__menu__item__btn\">다음 글 없음</span></li>");
+        }
+
+        sb.append("  </ul>")
+                .append("</nav>");
+
+        return sb.toString();
+    }
 }
