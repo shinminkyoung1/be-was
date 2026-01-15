@@ -94,4 +94,44 @@ public class PageRender {
 
         return sb.toString();
     }
+
+    // 최신 게시글 1개 렌더링
+    public static String renderLatestArticle(Article article, User writer, int commentCount) {
+        if (article == null) {
+            return "<div class='post'><p class='post__article'>등록된 게시글이 없습니다.</p></div>";
+        }
+
+            StringBuilder sb = new StringBuilder();
+
+            String profileImage = (writer.profileImage() != null && !writer.profileImage().isEmpty())
+                    ? writer.profileImage()
+                    : "/img/basic_profileImage.svg";
+
+            sb.append("<div class=\"post\">");
+            // 작성자 정보
+            sb.append("  <div class=\"post__account\">")
+                    .append("    <img class=\"post__account__img\" src=\"").append(profileImage).append("\" />")
+                    .append("    <p class=\"post__account__nickname\">").append(article.writer()).append("</p>")
+                    .append("  </div>");
+
+            // 이미지
+            if (article.imagePath() != null && !article.imagePath().isEmpty()) {
+                sb.append("  <img class=\"post__img\" src=\"").append(article.imagePath()).append("\" />");
+            }
+
+            // 좋아요 카운트 & 댓글 개수 포함
+            sb.append("  <div class=\"post__menu\">")
+                    .append("    <ul class=\"post__menu__personal\">")
+                    .append("      <li><button class=\"post__menu__btn\"><img src=\"/img/like.svg\" /></button> 0</li>") // 좋아요 카운트
+                    .append("      <li><button class=\"post__menu__btn\"><img src=\"/img/comment.svg\" /></button> ")
+                    .append(commentCount).append("</li>") // 댓글 개수
+                    .append("    </ul>")
+                    .append("  </div>");
+
+            // 본문
+            sb.append("  <p class=\"post__article\">").append(article.contents()).append("</p>");
+            sb.append("</div>");
+
+            return sb.toString();
+    }
 }
