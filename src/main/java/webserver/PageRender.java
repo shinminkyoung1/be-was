@@ -122,9 +122,15 @@ public class PageRender {
             // 좋아요 카운트 & 댓글 개수 포함
             sb.append("  <div class=\"post__menu\">")
                     .append("    <ul class=\"post__menu__personal\">")
-                    .append("      <li><button class=\"post__menu__btn\"><img src=\"/img/like.svg\" /></button> 0</li>") // 좋아요 카운트
+                    .append("      <li>")
+                    .append("        <a href=\"/article/like?id=").append(article.id()).append("\">")
+                    .append("          <button class=\"post__menu__btn\"><img src=\"/img/like.svg\" /></button>")
+                    .append("        </a> ")
+                    .append(article.likeCount())
+                    .append("      </li>")
+
                     .append("      <li><button class=\"post__menu__btn\"><img src=\"/img/comment.svg\" /></button> ")
-                    .append(commentCount).append("</li>") // 댓글 개수
+                    .append(commentCount).append("</li>")
                     .append("    </ul>")
                     .append("  </div>");
 
