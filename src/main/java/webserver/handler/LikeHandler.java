@@ -18,7 +18,10 @@ public class LikeHandler implements Handler{
         if (idParam != null) {
             Long articleId = Long.parseLong(idParam);
             articleDao.updateLikeCount(articleId);
+
+            response.sendRedirect("/article/index?id=" + articleId);
+        } else {
+            response.sendRedirect(Config.DEFAULT_PAGE);
         }
-        response.sendRedirect(Config.DEFAULT_PAGE);
     }
 }
