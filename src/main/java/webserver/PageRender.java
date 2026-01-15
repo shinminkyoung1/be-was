@@ -173,7 +173,7 @@ public class PageRender {
     }
 
     // 하단 네비게이션 렌더링 (이전 글 / 댓글 작성 / 다음 글)
-    public static String renderPostNav(Long prevId, Long nextId) {
+    public static String renderPostNav(Long prevId, Long nextId, Long currentArticleId) {
         StringBuilder sb = new StringBuilder();
         sb.append("<nav class=\"nav\">")
                 .append("  <ul class=\"nav__menu\">");
@@ -191,7 +191,10 @@ public class PageRender {
         }
 
         // [댓글 작성] 버튼 (모달 연결 또는 작성 페이지 이동)
-        sb.append("    <li class=\"nav__menu__item\"><a class=\"btn btn_ghost btn_size_m\" href=\"/comment/write\">댓글 작성</a></li>");
+        sb.append("    <li class=\"nav__menu__item\">")
+                .append("      <a class=\"btn btn_ghost btn_size_m\" href=\"/comment?articleId=")
+                .append(currentArticleId).append("\">댓글 작성</a>")
+                .append("    </li>");
 
         // [다음 글] 버튼
         if (nextId != null) {

@@ -24,6 +24,8 @@ public class AppConfig {
     private static final Handler articleWriteHandler = new ArticleWriteHandler(articleDao, userDao);
     private static final Handler articleIndexHandler = new ArticleIndexHandler(articleDao, userDao, commentDao);
     private static final Handler articleLikeHandler = new LikeHandler(articleDao);
+    private static final Handler commentWriteHandler = new CommentWriteHandler(commentDao);
+    private static final Handler commentPageHandler = new CommentPageHandler();
 
     private static final Handler myPageHandler = new MyPageHandler(userDao);
     private static final Handler profileUpdateHandler = new ProfileUpdateHandler(userDao);
@@ -39,6 +41,8 @@ public class AppConfig {
         mappings.put("/", articleIndexHandler);
         mappings.put("/index.html", articleIndexHandler);
         mappings.put("/article/like", articleLikeHandler);
+        mappings.put("/comment/write", commentWriteHandler);
+        mappings.put("/comment", commentPageHandler);
 
         mappings.put("/mypage", myPageHandler);
         mappings.put("/user/update", profileUpdateHandler);
@@ -46,8 +50,7 @@ public class AppConfig {
         Map<String, String> staticPages = Map.of(
                 "/registration", Config.REGISTRATION_PAGE,
                 "/login", Config.LOGIN_PAGE,
-                "/article", Config.ARTICLE_PAGE,
-                "/comment", Config.COMMENT_PAGE
+                "/article", Config.ARTICLE_PAGE
         );
 
         staticPages.forEach((path, filePath) ->

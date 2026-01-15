@@ -51,9 +51,15 @@ public class ArticleIndexHandler implements Handler {
 
                 model.put("posts_list", PageRender.renderLatestArticle(latest, writer, comments.size()));
                 model.put("comment_list", PageRender.renderComments(comments));
+
+                Long prevId = articleDao.findPreviousId(latest.id());
+                Long nextId = articleDao.findNextId(latest.id());
+                model.put("post_nav", PageRender.renderPostNav(prevId, nextId, latest.id()));
+
             } else {
                 model.put("posts_list", "<div class='post'><p class='post__article'>등록된 게시글이 없습니다.</p></div>");
                 model.put("comment_list", "");
+                model.put("post_nav", "");
             }
 
             File file = new File(Config.STATIC_RESOURCE_PATH + "/index.html");

@@ -91,4 +91,30 @@ public class ArticleDao {
             throw new RuntimeException("좋아요 업데이트 실패: " + e.getMessage());
         }
     }
+
+    // 이전 글 id 찾기
+    public Long findPreviousId(Long currentId) {
+        String sql = "SELECT id FROM ARTICLE WHERE id < ? ORDER BY id DESC LIMIT 1";
+        try (Connection conn = ConnectionManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setLong(1, currentId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) return rs.getLong("id");
+            }
+        } catch (SQLException e) { logger.error("Failed to get Prev ID", e); }
+        return null;
+    }
+
+    // 다음 글 id 찾기
+    public Long findNextId(Long currentId) {
+        String sql = "SELECT id FROM ARTICLE WHERE id > ? ORDER BY id ASC LIMIT 1";
+        try (Connection conn = ConnectionManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setLong(1, currentId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) return rs.getLong("id");
+            }
+        } catch (SQLException e) { logger.error("Failed to get Next ID", e); }
+        return null;
+    }
 }
