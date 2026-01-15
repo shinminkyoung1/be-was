@@ -16,7 +16,7 @@ public class PageRender {
             // [사용자 이름] 클릭 시 마이페이지 이동
             sb.append("<li class=\"header__menu__item\">")
                     .append("<a class=\"btn btn_ghost btn_size_s\" href=\"/mypage\">") // 여기서 링크 시작
-                    .append("<strong>").append(loginUser.name()).append("님</strong>")
+                    .append("<strong>").append("안녕하세요, ").append(loginUser.name()).append("님!</strong>")
                     .append("</a>") // 링크 끝
                     .append("</li>");
 
