@@ -57,7 +57,7 @@ public class UserDao {
 
     // 정보 갱신
     public void update(User user) {
-        String sql = "UPDATE USERS SET name = ?, email = ?, profileImage = ? WHERE userId = ?";
+        String sql = "UPDATE USERS SET name = ?, email = ?, profileImage = ?, password = ? WHERE userId = ?";
 
         try (Connection connection = ConnectionManager.getConnection();
              PreparedStatement pstmt = connection.prepareStatement(sql)) {
@@ -65,7 +65,8 @@ public class UserDao {
             pstmt.setString(1, user.name());
             pstmt.setString(2, user.email());
             pstmt.setString(3, user.profileImage());
-            pstmt.setString(4, user.userId());
+            pstmt.setString(4, user.password());
+            pstmt.setString(5, user.userId());
 
             pstmt.executeUpdate();
             logger.debug("User updated in DB: {}", user.userId());
