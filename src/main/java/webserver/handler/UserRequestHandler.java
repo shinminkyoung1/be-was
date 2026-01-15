@@ -57,6 +57,20 @@ public class UserRequestHandler implements Handler {
             return;
         }
 
+        // 아이디 중복 검증
+        if (userDao.existsByUserId(userId)) {
+            response.addHeader("Set-Cookie", "reg_error=duplicate_id; Path=/");
+            response.sendRedirect(Config.REGISTRATION_PAGE);
+            return;
+        }
+
+        // 닉네임 중복 검증
+        if (userDao.existsByName(name)) {
+            response.addHeader("Set-Cookie", "reg_error=duplicate_name; Path=/");
+            response.sendRedirect(Config.REGISTRATION_PAGE);
+            return;
+        }
+
         User user = new User(userId, password, name, email, null);
         userDao.insert(user);
         logger.debug("Saved User: {}", user);

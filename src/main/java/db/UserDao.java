@@ -74,4 +74,39 @@ public class UserDao {
             logger.error("DB Update Error (User): {}", e.getMessage());
         }
     }
+
+    // 아이디 중복 체크
+    public boolean existsByUserId(String userId) {
+        String sql = "SELECT COUNT(*) FROM USERS WHERE userId = ?";
+        try (Connection connection = ConnectionManager.getConnection();
+            PreparedStatement pstmt = connection.prepareStatement(sql)) {
+
+            pstmt.setString(1, userId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            logger.error("Error checking userId existence", e);
+        }
+        return false;
+    }
+
+    // 닉네임 중복 체크
+    public boolean existsByName(String name) {
+        String sql = "SELECT COUNT(*) FROM USERS WHERE name = ?";
+        try (Connection connection = ConnectionManager.getConnection();
+             PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, name);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            logger.error("Error checking name existence", e);
+        }
+        return false;
+    }
 }
