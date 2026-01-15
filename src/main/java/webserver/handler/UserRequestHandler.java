@@ -45,7 +45,8 @@ public class UserRequestHandler implements Handler {
         // 유효성 검사
         if (isAnyEmpty(userId, password, name)) {
             logger.warn("Registration failed: Missing required parameters.");
-            response.sendError(HttpStatus.BAD_REQUEST);
+            response.addHeader("Set-Cookie", "reg_error=empty_field; Path=/");
+            response.sendRedirect("/registration");
             return;
         }
 
@@ -59,7 +60,7 @@ public class UserRequestHandler implements Handler {
         User user = new User(userId, password, name, email, null);
         userDao.insert(user);
         logger.debug("Saved User: {}", user);
-        response.sendRedirect(Config.DEFAULT_PAGE);
+        response.sendRedirect(Config.LOGIN_PAGE);
     }
 
     private boolean isAnyEmpty(String... values) {
