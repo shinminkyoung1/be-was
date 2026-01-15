@@ -143,7 +143,7 @@ public class PageRender {
     }
 
     // 댓글 목록 렌더링 (최대 3개 노출 및 모든 댓글 보기 버튼)
-    public static String renderComments(List<model.Comment> comments) {
+    public static String renderComments(List<model.Comment> comments, UserDao userDao) {
         if (comments == null || comments.isEmpty()) {
             return "<li class=\"comment__item\"><p class=\"comment__item__article\">아직 댓글이 없습니다.</p></li>";
         }
@@ -154,12 +154,17 @@ public class PageRender {
         for (int i=0; i<totalCount; i++) {
             Comment c = comments.get(i);
 
+            User commenter = userDao.findUserById(c.writer());
+            String profileImage = (commenter != null && commenter.profileImage() != null && !commenter.profileImage().isEmpty())
+                    ? commenter.profileImage()
+                    : "/img/basic_profileImage.svg";
+
             String hiddenClass = (i >= 3) ? "comment__item--hidden" : "";
             String hiddenStyle = (i >= 3) ? "style=\"display: none;\"" : "";
 
             sb.append("<li class=\"comment__item ").append(hiddenClass).append("\" ").append(hiddenStyle).append(">")
                     .append("  <div class=\"comment__item__user\">")
-                    .append("    <img class=\"comment__item__user__img\" src=\"/img/basic_profileImage.svg\" />")
+                    .append("    <img class=\"comment__item__user__img\" src=\""). append(profileImage).append("\" />")
                     .append("    <p class=\"comment__item__user__nickname\">").append(c.writer()).append("</p>")
                     .append("  </div>")
                     .append("  <p class=\"comment__item__article\">").append(c.text()).append("</p>")

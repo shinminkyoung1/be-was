@@ -57,7 +57,7 @@ public class ArticleIndexHandler implements Handler {
                 List<Comment> comments = commentDao.findAllByArticleId(targetArticle.id());
 
                 model.put("posts_list", PageRender.renderLatestArticle(targetArticle, writer, comments.size()));
-                model.put("comment_list", PageRender.renderComments(comments));
+                model.put("comment_list", PageRender.renderComments(comments, userDao));
 
                 Long prevId = articleDao.findPreviousId(targetArticle.id());
                 Long nextId = articleDao.findNextId(targetArticle.id());
