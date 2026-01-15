@@ -40,21 +40,28 @@ public class ArticleIndexHandler implements Handler {
         User loginUser = SessionManager.getLoginUser(sessionId, AppConfig.getUserDao());
 
         try {
-            Article latest = articleDao.selectLatest();
+            String idParam = request.getParameter("id");
+            Article targetArticle;
+
+            if (idParam != null && !idParam.isEmpty()) {
+                targetArticle = articleDao.findById(Long.parseLong(idParam));
+            } else {
+                targetArticle = articleDao.selectLatest();
+            }
 
             Map<String, String> model = new HashMap<>();
             model.put("header_items", PageRender.renderHeader(loginUser));
 
-            if (latest != null) {
-                User writer = userDao.findUserById(latest.writer());
-                List<Comment> comments = commentDao.findAllByArticleId(latest.id());
+            if (targetArticle != null) {
+                User writer = userDao.findUserById(targetArticle.writer());
+                List<Comment> comments = commentDao.findAllByArticleId(targetArticle.id());
 
-                model.put("posts_list", PageRender.renderLatestArticle(latest, writer, comments.size()));
+                model.put("posts_list", PageRender.renderLatestArticle(targetArticle, writer, comments.size()));
                 model.put("comment_list", PageRender.renderComments(comments));
 
-                Long prevId = articleDao.findPreviousId(latest.id());
-                Long nextId = articleDao.findNextId(latest.id());
-                model.put("post_nav", PageRender.renderPostNav(prevId, nextId, latest.id()));
+                Long prevId = articleDao.findPreviousId(targetArticle.id());
+                Long nextId = articleDao.findNextId(targetArticle.id());
+                model.put("post_nav", PageRender.renderPostNav(prevId, nextId, targetArticle.id()));
 
             } else {
                 model.put("posts_list", "<div class='post'><p class='post__article'>등록된 게시글이 없습니다.</p></div>");
@@ -71,6 +78,9 @@ public class ArticleIndexHandler implements Handler {
         } catch (IOException e) {
             logger.error("Index rendering error: ", e);
             response.sendError(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (NumberFormatException e) {
+            logger.error("Invalid ID format: ", e);
+            response.sendRedirect(Config.DEFAULT_PAGE);
         }
     }
 }

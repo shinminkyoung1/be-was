@@ -22,7 +22,7 @@ public class PageRender {
 
             // [글쓰기] 버튼
             sb.append("<li class=\"header__menu__item\">")
-                    .append("<a class=\"btn btn_contained btn_size_s\" href=\"/article\">글쓰기</a>")
+                    .append("<a class=\"btn btn_contained btn_size_s\" href=\"/article/form\">글쓰기</a>")
                     .append("</li>");
 
             // [로그아웃] 버튼
@@ -188,7 +188,7 @@ public class PageRender {
         if (prevId != null) {
             sb.append("    <li class=\"nav__menu__item\">")
                     .append("      <a class=\"nav__menu__item__btn\" href=\"/article/index?id=").append(prevId).append("\">")
-                    .append("        <img class=\"nav__menu__item__img\" src=\"./img/ci_chevron-left.svg\" /> 이전 글")
+                    .append("        <img class=\"nav__menu__item__img\" src=\"/img/ci_chevron-left.svg\" /> 이전 글")
                     .append("      </a>")
                     .append("    </li>");
         } else {
@@ -206,7 +206,7 @@ public class PageRender {
         if (nextId != null) {
             sb.append("    <li class=\"nav__menu__item\">")
                     .append("      <a class=\"nav__menu__item__btn\" href=\"/article/index?id=").append(nextId).append("\">")
-                    .append("        다음 글 <img class=\"nav__menu__item__img\" src=\"./img/ci_chevron-right.svg\" />")
+                    .append("        다음 글 <img class=\"nav__menu__item__img\" src=\"/img/ci_chevron-right.svg\" />")
                     .append("      </a>")
                     .append("    </li>");
         } else {

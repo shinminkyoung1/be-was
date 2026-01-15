@@ -40,6 +40,7 @@ public class AppConfig {
         mappings.put("/article/write", articleWriteHandler);
         mappings.put("/", articleIndexHandler);
         mappings.put("/index.html", articleIndexHandler);
+        mappings.put("/article/index", articleIndexHandler);
         mappings.put("/article/like", articleLikeHandler);
         mappings.put("/comment/write", commentWriteHandler);
         mappings.put("/comment", commentPageHandler);
@@ -50,7 +51,7 @@ public class AppConfig {
         Map<String, String> staticPages = Map.of(
                 "/registration", Config.REGISTRATION_PAGE,
                 "/login", Config.LOGIN_PAGE,
-                "/article", Config.ARTICLE_PAGE
+                "/article/form", Config.ARTICLE_PAGE
         );
 
         staticPages.forEach((path, filePath) ->

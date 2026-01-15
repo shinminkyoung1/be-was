@@ -101,6 +101,12 @@ public class HttpResponse {
             }
 
             String extension = HttpRequestUtils.getFileExtension(url);
+            if (extension == null || extension.isEmpty() || url.contains("?")) {
+                if (url.equals("/") || url.startsWith("/article") || url.startsWith("/?")) {
+                    extension = "html";
+                }
+            }
+
             String contentType = MimeType.getContentType(extension);
             this.status = HttpStatus.OK;
             setHttpHeader(contentType, body.length);

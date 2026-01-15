@@ -92,6 +92,33 @@ public class ArticleDao {
         }
     }
 
+    // id로 글 찾기
+    public Article findById(Long id) {
+        String sql = "SELECT * FROM ARTICLE WHERE id = ?";
+        try (Connection conn = ConnectionManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setLong(1, id);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return new Article(
+                            rs.getLong("id"),
+                            rs.getString("writer"),
+                            rs.getString("title"),
+                            rs.getString("contents"),
+                            rs.getTimestamp("createdAt").toLocalDateTime(),
+                            rs.getString("imagePath"),
+                            rs.getInt("likeCount")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            logger.error("Failed get Article Detail (ID: {}): ", id, e);
+        }
+        return null;
+    }
+
     // 이전 글 id 찾기
     public Long findPreviousId(Long currentId) {
         String sql = "SELECT id FROM ARTICLE WHERE id < ? ORDER BY id DESC LIMIT 1";
