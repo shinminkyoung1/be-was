@@ -67,7 +67,7 @@ public class ProfileUpdateHandler implements Handler {
             }
         }
 
-        User updatedUser = new User(loginUser.userId(), newPwd, newName, newEmail, profileImagePath);
+        User updatedUser = new User(loginUser.userId(), finalPassword, newName, newEmail, profileImagePath);
         userDao.update(updatedUser);
 
         logger.debug("Profile updated for user: {}", loginUser.userId());
