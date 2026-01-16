@@ -90,10 +90,9 @@
   const deleteFlag = document.querySelector('#delete-flag');
   const previewImg = document.querySelector('#profile-preview');
 
+  // 1. 프로필 수정 및 이미지 미리보기 로직
   if (editBtn && fileInput) {
-    editBtn.addEventListener('click', () => {
-      fileInput.click();
-    });
+    editBtn.addEventListener('click', () => fileInput.click());
   }
 
   if (fileInput && previewImg) {
@@ -110,6 +109,7 @@
     });
   }
 
+  // 2. 이미지 삭제 로직
   if (deleteBtn && previewImg) {
     deleteBtn.addEventListener('click', () => {
       previewImg.src = "/img/basic_profileImage.svg";
@@ -117,8 +117,8 @@
       if (deleteFlag) deleteFlag.value = "true";
     });
   }
-</script>
-<script>
+
+  // 3. 쿠키 기반 에러 알림 로직
   function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -126,8 +126,15 @@
   }
 
   const errorStatus = getCookie('update_error');
-  if (errorStatus === 'pwd_mismatch') {
-    alert("비밀번호와 비밀번호 확인이 일치하지 않습니다. 다시 입력해 주세요.");
+  if (errorStatus) {
+    if (errorStatus === 'pwd_mismatch') {
+      alert("비밀번호와 비밀번호 확인이 일치하지 않습니다.");
+    } else if (errorStatus === 'invalid_name') {
+      alert("닉네임은 최소 4글자 이상이어야 합니다.");
+    } else if (errorStatus === 'invalid_pwd') {
+      alert("비밀번호는 최소 4글자 이상이어야 합니다.");
+    }
+    // 알림 후 쿠키 즉시 삭제 (중복 알림 방지)
     document.cookie = "update_error=; Path=/; Max-Age=0";
   }
 </script>

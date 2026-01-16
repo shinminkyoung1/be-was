@@ -35,10 +35,23 @@ public class ProfileUpdateHandler implements Handler {
         String newPwdConfirm = request.getParameter("password_confirm");
         String deleteImageFlag = request.getParameter("delete_image");
 
+        if (newName == null || newName.trim().length() < 4) {
+            logger.warn("Update failed: Name must be at least 4 characters.");
+            response.addHeader("Set-Cookie", "update_error=invalid_name; Path=/; Max-Age=5");
+            response.sendRedirect("/mypage");
+            return;
+        }
+
         String finalPassword = loginUser.password();
 
         // 비밀번호 변경
         if (newPwd != null && !newPwd.trim().isEmpty()) {
+            if (newPwd.trim().length() < 4) {
+                logger.warn("Update failed: Password must be at least 4 characters.");
+                response.addHeader("Set-Cookie", "update_error=invalid_pwd; Path=/; Max-Age=5");
+                response.sendRedirect("/mypage");
+                return;
+            }
 
             if (!newPwd.equals(newPwdConfirm)) {
                 logger.warn("Profile update failed: Password confirmation mismatch for user '{}'", loginUser.userId());
