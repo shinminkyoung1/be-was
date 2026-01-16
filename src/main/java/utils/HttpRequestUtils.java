@@ -136,6 +136,10 @@ public class HttpRequestUtils {
             int nextDelimiter = findIndex(body, delimiterBytes, headerEnd + 4);
             if (nextDelimiter == -1) break;
 
+            int end = nextDelimiter;
+            if (body[end - 1] == 10) end--;
+            if (body[end - 1] == 13) end--;
+
             byte[] partData = Arrays.copyOfRange(body, headerEnd + 4, nextDelimiter - 2);
 
             parts.add(new MultipartPart(name, fileName, contentType, partData));
@@ -159,9 +163,23 @@ public class HttpRequestUtils {
     }
 
     private static String extractAttribute(String header, String attr) {
+        // name="value" 또는 filename="value" 형태
         int start = header.indexOf(attr + "=\"");
-        if (start == -1) return null;
-        start += attr.length() + 2;
-        return header.substring(start, header.indexOf("\"", start));
+        if (start != -1) {
+            start += attr.length() + 2;
+            int end = header.indexOf("\"", start);
+            return (end != -1) ? header.substring(start, end) : null;
+        }
+
+        // Content-Type: image/png 형태
+        start = header.indexOf(attr + ": ");
+        if (start != -1) {
+            start += attr.length() + 2;
+            int end = header.indexOf("\r\n", start);
+            if (end == -1) end = header.length();
+            return header.substring(start, end).trim();
+        }
+
+        return null;
     }
 }

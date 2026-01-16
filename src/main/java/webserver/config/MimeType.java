@@ -9,6 +9,7 @@ public enum MimeType {
     ICO("ico", "image/x-icon"),
     PNG("png", "image/png"),
     JPG("jpg", "image/jpeg"),
+    JPEG("jpeg", "image/jpeg"),
     SVG("svg", "image/svg+xml"),
     // 지원하지 않는 경우 다운로드 시도하거나 텍스트
     DEFAULT("", "application/octet-stream");

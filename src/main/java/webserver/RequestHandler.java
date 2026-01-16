@@ -51,7 +51,8 @@ public class RequestHandler implements Runnable {
             }
 
             if (path.startsWith("/uploads/")) {
-                String fileName = path.substring("/uploads/".length());
+                String decodedPath = java.net.URLDecoder.decode(path, "UTF-8");
+                String fileName = decodedPath.substring("/uploads/".length());
                 File file = new File(Config.EXTERNAL_UPLOAD_PATH, fileName);
 
                 if (file.exists()) {
