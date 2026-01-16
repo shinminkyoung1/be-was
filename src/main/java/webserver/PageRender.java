@@ -110,11 +110,13 @@ public class PageRender {
                     ? writer.profileImage()
                     : "/img/basic_profileImage.svg";
 
+            String writerName = (writer != null) ? writer.name() : article.writer();
+
             sb.append("<div class=\"post\">");
             // 작성자 정보
             sb.append("  <div class=\"post__account\">")
                     .append("    <img class=\"post__account__img\" src=\"").append(profileImage).append("\" />")
-                    .append("    <p class=\"post__account__nickname\">").append(article.writer()).append("</p>")
+                    .append("    <p class=\"post__account__nickname\">").append(writerName).append("</p>")
                     .append("  </div>");
 
             // 이미지
@@ -161,13 +163,15 @@ public class PageRender {
                     ? commenter.profileImage()
                     : "/img/basic_profileImage.svg";
 
+            String commenterName = (commenter != null) ? commenter.name() : c.writer();
+
             String hiddenClass = (i >= 3) ? "comment__item--hidden" : "";
             String hiddenStyle = (i >= 3) ? "style=\"display: none;\"" : "";
 
             sb.append("<li class=\"comment__item ").append(hiddenClass).append("\" ").append(hiddenStyle).append(">")
                     .append("  <div class=\"comment__item__user\">")
                     .append("    <img class=\"comment__item__user__img\" src=\""). append(profileImage).append("\" />")
-                    .append("    <p class=\"comment__item__user__nickname\">").append(c.writer()).append("</p>")
+                    .append("    <p class=\"comment__item__user__nickname\">").append(commenterName).append("</p>")
                     .append("  </div>")
                     .append("  <p class=\"comment__item__article\">").append(c.text()).append("</p>")
                     .append("</li>");
