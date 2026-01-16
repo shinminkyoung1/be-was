@@ -2,6 +2,7 @@ package webserver.handler;
 
 import db.UserDao;
 import model.User;
+import org.h2.mvstore.Page;
 import webserver.HttpRequest;
 import webserver.HttpResponse;
 import webserver.PageRender;
@@ -30,6 +31,7 @@ public class MyPageHandler implements Handler {
         }
 
         Map<String, String> model = new HashMap<>();
+        model.put("header_items", PageRender.renderHeader(loginUser));
         model.put("user_profile_image", PageRender.renderProfile(loginUser));
         model.put("user_name", loginUser.name());
 

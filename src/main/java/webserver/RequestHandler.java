@@ -8,6 +8,7 @@ import db.UserDao;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import webserver.config.Config;
 import webserver.handler.Handler;
 import webserver.handler.RouteGuide;
 
@@ -47,6 +48,16 @@ public class RequestHandler implements Runnable {
                 logger.debug("Access Denied: Redirecting to /login");
                 response.sendRedirect("/login");
                 return;
+            }
+
+            if (path.startsWith("/uploads/")) {
+                String fileName = path.substring("/uploads/".length());
+                File file = new File(Config.EXTERNAL_UPLOAD_PATH, fileName);
+
+                if (file.exists()) {
+                    response.fileResponseFromExternal(file);
+                    return;
+                }
             }
 
             // 경로에 맞는 핸들러 있는지 확인

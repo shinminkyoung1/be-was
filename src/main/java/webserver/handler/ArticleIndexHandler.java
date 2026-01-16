@@ -1,8 +1,10 @@
 package webserver.handler;
 
 import db.ArticleDao;
+import db.CommentDao;
 import db.UserDao;
 import model.Article;
+import model.Comment;
 import model.User;
 import org.h2.mvstore.Page;
 import org.slf4j.Logger;
@@ -24,10 +26,12 @@ public class ArticleIndexHandler implements Handler {
 
     private final ArticleDao articleDao;
     private final UserDao userDao;
+    private final CommentDao commentDao;
 
-    public ArticleIndexHandler(ArticleDao articleDao, UserDao userDao) {
+    public ArticleIndexHandler(ArticleDao articleDao, UserDao userDao, CommentDao commentDao) {
         this.articleDao = articleDao;
         this.userDao = userDao;
+        this.commentDao = commentDao;
     }
 
     @Override
@@ -36,21 +40,47 @@ public class ArticleIndexHandler implements Handler {
         User loginUser = SessionManager.getLoginUser(sessionId, AppConfig.getUserDao());
 
         try {
-            File file = new File(Config.STATIC_RESOURCE_PATH + "/index.html");
-            String content = new String(Files.readAllBytes(file.toPath()), Config.UTF_8);
+            String idParam = request.getParameter("id");
+            Article targetArticle;
+
+            if (idParam != null && !idParam.isEmpty()) {
+                targetArticle = articleDao.findById(Long.parseLong(idParam));
+            } else {
+                targetArticle = articleDao.selectLatest();
+            }
 
             Map<String, String> model = new HashMap<>();
-
             model.put("header_items", PageRender.renderHeader(loginUser));
 
-            List<Article> articles = articleDao.selectAll();
-            model.put("posts_list", PageRender.renderArticleList(articles, userDao));
+            if (targetArticle != null) {
+                User writer = userDao.findUserById(targetArticle.writer());
+                List<Comment> comments = commentDao.findAllByArticleId(targetArticle.id());
 
+                model.put("posts_list", PageRender.renderLatestArticle(targetArticle, writer, comments.size()));
+                model.put("comment_list", PageRender.renderComments(comments, userDao));
+
+                Long prevId = articleDao.findPreviousId(targetArticle.id());
+                Long nextId = articleDao.findNextId(targetArticle.id());
+                model.put("post_nav", PageRender.renderPostNav(prevId, nextId, targetArticle.id()));
+
+            } else {
+                model.put("posts_list", "<div class='post'><p class='post__article'>등록된 게시글이 없습니다.</p></div>");
+                model.put("comment_list", "");
+                model.put("post_nav", "");
+            }
+
+            File file = new File(Config.STATIC_RESOURCE_PATH + "/index.html");
+            String content = new String(Files.readAllBytes(file.toPath()), Config.UTF_8);
             String renderedHtml = TemplateEngine.render(content, model);
 
             response.sendHtmlContent(renderedHtml);
+
         } catch (IOException e) {
+            logger.error("Index rendering error: ", e);
             response.sendError(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (NumberFormatException e) {
+            logger.error("Invalid ID format: ", e);
+            response.sendRedirect(Config.DEFAULT_PAGE);
         }
     }
 }

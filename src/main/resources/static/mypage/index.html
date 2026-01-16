@@ -3,20 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="../reset.css" rel="stylesheet" />
-  <link href="../global.css" rel="stylesheet" />
+  <link href="/reset.css" rel="stylesheet" />
+  <link href="/global.css" rel="stylesheet" />
 </head>
 <body>
 <div class="container">
   <header class="header">
-    <a href="/"><img src="../img/signiture.svg" /></a>
+    <a href="/"><img src="/img/signiture.svg" /></a>
     <ul class="header__menu">
-      <li class="header__menu__item">
-        <a class="btn btn_contained btn_size_s" href="/article">글쓰기</a>
-      </li>
-      <li class="header__menu__item">
-        <button id="logout-btn" class="btn btn_ghost btn_size_s">로그아웃</button>
-      </li>
+      {{header_items}}
     </ul>
   </header>
   <div class="page">
@@ -31,12 +26,14 @@
 
           <input type="file" id="profile-input" name="profileImage" accept="image/*" style="display: none;" />
 
+          <input type="hidden" name="delete_image" id="delete-flag" value="false">
+
           <div class="profile_frame">
             <div class="btn_profile" id="btn-edit-photo" style="cursor: pointer;">
               <div class="btn_container">수정</div>
             </div>
             <div class="btn_bar"></div>
-            <div class="btn_profile" style="cursor: pointer;">
+            <div class="btn_profile" id="btn-delete-photo" style="cursor: pointer;">
               <div class="btn_container">삭제</div>
             </div>
           </div>
@@ -67,6 +64,7 @@
         <div class="textfield textfield_size_s">
           <p class="title_textfield">비밀번호 확인</p>
           <input
+                  name="password_confirm"
                   class="input_textfield"
                   type="password"
                   placeholder="한 번 더 입력해주세요"
@@ -87,25 +85,58 @@
 
 <script>
   const editBtn = document.querySelector('#btn-edit-photo');
+  const deleteBtn = document.querySelector('#btn-delete-photo');
   const fileInput = document.querySelector('#profile-input');
+  const deleteFlag = document.querySelector('#delete-flag');
   const previewImg = document.querySelector('#profile-preview');
 
-  // '수정' 클릭 시 hidden input 클릭 강제 발생
-  editBtn.addEventListener('click', () => {
-    fileInput.click();
-  });
+  // 1. 프로필 수정 및 이미지 미리보기 로직
+  if (editBtn && fileInput) {
+    editBtn.addEventListener('click', () => fileInput.click());
+  }
 
-  // 파일을 선택하면 화면에서 미리보기 변경
-  fileInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        previewImg.src = event.target.result;
-      };
-      reader.readAsDataURL(file);
+  if (fileInput && previewImg) {
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          previewImg.src = event.target.result;
+          if (deleteFlag) deleteFlag.value = "false";
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+
+  // 2. 이미지 삭제 로직
+  if (deleteBtn && previewImg) {
+    deleteBtn.addEventListener('click', () => {
+      previewImg.src = "/img/basic_profileImage.svg";
+      if (fileInput) fileInput.value = "";
+      if (deleteFlag) deleteFlag.value = "true";
+    });
+  }
+
+  // 3. 쿠키 기반 에러 알림 로직
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }
+
+  const errorStatus = getCookie('update_error');
+  if (errorStatus) {
+    if (errorStatus === 'pwd_mismatch') {
+      alert("비밀번호와 비밀번호 확인이 일치하지 않습니다.");
+    } else if (errorStatus === 'invalid_name') {
+      alert("닉네임은 최소 4글자 이상이어야 합니다.");
+    } else if (errorStatus === 'invalid_pwd') {
+      alert("비밀번호는 최소 4글자 이상이어야 합니다.");
     }
-  });
+    // 알림 후 쿠키 즉시 삭제 (중복 알림 방지)
+    document.cookie = "update_error=; Path=/; Max-Age=0";
+  }
 </script>
 </body>
 </html>

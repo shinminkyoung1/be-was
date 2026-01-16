@@ -11,14 +11,7 @@
       <header class="header">
         <a href="/"><img src="../img/signiture.svg" /></a>
         <ul class="header__menu">
-          <li class="header__menu__item">
-            <a class="btn btn_contained btn_size_s" href="/article/index.html">글쓰기</a>
-          </li>
-          <li class="header__menu__item">
-            <button id="logout-btn" class="btn btn_ghost btn_size_s">
-              로그아웃
-            </button>
-          </li>
+          {{header_items}}
         </ul>
       </header>
       <div class="page">
@@ -62,5 +55,20 @@
         </form>
       </div>
     </div>
+    <script>
+      function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+      }
+
+      const articleError = getCookie('article_error');
+
+      if (articleError === 'no_image') {
+          alert("이미지를 반드시 첨부해야 게시글을 작성할 수 있습니다.");
+          // 확인 후 쿠키 즉시 만료
+          document.cookie = "article_error=; Path=/; Max-Age=0";
+      }
+    </script>
   </body>
 </html>

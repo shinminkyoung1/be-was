@@ -33,6 +33,13 @@ public class WebServer {
             port = Integer.parseInt(args[0]);
         }
 
+        try {
+            db.ConnectionManager.getConnection().close();
+            logger.info("Database and Tables initialized successfully.");
+        } catch (Exception e) {
+            logger.error("Database initialization failed: {}", e.getMessage());
+        }
+
         UserDao userDao = AppConfig.getUserDao();
         RouteGuide routeGuide = new RouteGuide(AppConfig.getRouteMappings());
 
