@@ -8,6 +8,7 @@ public class Config {
     public static final String MAIN_PAGE = "/main/index.html";
     public static final String MY_PAGE = "/mypage/index.html";
     public static final String ARTICLE_PAGE = "/article/index.html";
+    public static final String COMMENT_PAGE = "/comment/index.html";
     public static final String UTF_8 = "utf-8";
 
     public static final String CRLF = "\r\n";

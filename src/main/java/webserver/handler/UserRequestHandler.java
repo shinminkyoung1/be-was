@@ -45,14 +45,36 @@ public class UserRequestHandler implements Handler {
         // 유효성 검사
         if (isAnyEmpty(userId, password, name)) {
             logger.warn("Registration failed: Missing required parameters.");
-            response.sendError(HttpStatus.BAD_REQUEST);
+            response.addHeader("Set-Cookie", "reg_error=empty_field; Path=/");
+            response.sendRedirect("/registration");
+            return;
+        }
+
+        // 최소 4글자 이상 검증
+        if (!isValidInput(userId) || !isValidInput(name) || !isValidInput(password)) {
+            response.addHeader("Set-Cookie", "reg_error=invalid_length; Path=/");
+            response.sendRedirect(Config.REGISTRATION_PAGE);
+            return;
+        }
+
+        // 아이디 중복 검증
+        if (userDao.existsByUserId(userId)) {
+            response.addHeader("Set-Cookie", "reg_error=duplicate_id; Path=/");
+            response.sendRedirect(Config.REGISTRATION_PAGE);
+            return;
+        }
+
+        // 닉네임 중복 검증
+        if (userDao.existsByName(name)) {
+            response.addHeader("Set-Cookie", "reg_error=duplicate_name; Path=/");
+            response.sendRedirect(Config.REGISTRATION_PAGE);
             return;
         }
 
         User user = new User(userId, password, name, email, null);
         userDao.insert(user);
         logger.debug("Saved User: {}", user);
-        response.sendRedirect(Config.DEFAULT_PAGE);
+        response.sendRedirect(Config.LOGIN_PAGE);
     }
 
     private boolean isAnyEmpty(String... values) {
@@ -62,5 +84,9 @@ public class UserRequestHandler implements Handler {
             }
         }
         return false;
+    }
+
+    private boolean isValidInput(String input) {
+        return input != null && input.trim().length() >= 4;
     }
 }

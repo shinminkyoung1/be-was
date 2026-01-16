@@ -123,6 +123,11 @@ fabric.properties
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
+### Custom Upload Files ###
+# 프로젝트 내 업로드된 이미지 파일 제외
+**/static/uploads/*
+/uploads/
+
 # Package Files #
 *.jar
 *.war

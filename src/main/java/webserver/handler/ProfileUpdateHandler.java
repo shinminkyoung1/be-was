@@ -29,17 +29,48 @@ public class ProfileUpdateHandler implements Handler {
         String sessionId = request.getCookie("sid");
         User loginUser = SessionManager.getLoginUser(sessionId, userDao);
 
+        String newName = request.getParameter("name");
+        String newEmail = request.getParameter("email");
+        String newPwd = request.getParameter("password");
+        String newPwdConfirm = request.getParameter("password_confirm");
+        String deleteImageFlag = request.getParameter("delete_image");
+
+        String finalPassword = loginUser.password();
+
+        // 비밀번호 변경
+        if (newPwd != null && !newPwd.trim().isEmpty()) {
+
+            if (!newPwd.equals(newPwdConfirm)) {
+                logger.warn("Profile update failed: Password confirmation mismatch for user '{}'", loginUser.userId());
+
+                response.addHeader("Set-Cookie", "update_error=pwd_mismatch; Path=/; Max-Age=5");
+                response.sendRedirect("/mypage");
+                return;
+            }
+
+            finalPassword = newPwd;
+            logger.debug("Password change requested and validated for user '{}'", loginUser.userId());
+        }
+
+        // 프로필 이미지 처리
         String profileImagePath = loginUser.profileImage();
 
+        // 프로필 이미지 삭제
+        if ("true".equals(deleteImageFlag)) {
+            profileImagePath = "/img/basic_profileImage.svg";
+        }
+
+        // 이미지 업로드
         for (MultipartPart part : request.getMultipartParts()) {
             if (part.isFile() && "profileImage".equals(part.name()) && part.data().length > 0) {
                 profileImagePath = saveUploadedFile(part);
             }
         }
 
-        User updatedUser = new User(loginUser.userId(), loginUser.password(), loginUser.name(), loginUser.email(), profileImagePath);
+        User updatedUser = new User(loginUser.userId(), newPwd, newName, newEmail, profileImagePath);
         userDao.update(updatedUser);
 
+        logger.debug("Profile updated for user: {}", loginUser.userId());
         response.sendRedirect(Config.DEFAULT_PAGE);
     }
 

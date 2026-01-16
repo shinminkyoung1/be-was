@@ -1,6 +1,7 @@
 package webserver.config;
 
 import db.ArticleDao;
+import db.CommentDao;
 import db.Database;
 import db.UserDao;
 import model.Article;
@@ -14,13 +15,17 @@ import java.util.Map;
 public class AppConfig {
     private static final UserDao userDao = new UserDao();
     private static final ArticleDao articleDao = new ArticleDao();
+    private static final CommentDao commentDao = new CommentDao();
 
     private static final Handler userHandler = new UserRequestHandler(userDao);
     private static final Handler loginHandler = new LoginRequestHandler(userDao);
     private static final Handler logoutHandler = new LogoutRequestHandler(userDao);
 
     private static final Handler articleWriteHandler = new ArticleWriteHandler(articleDao, userDao);
-    private static final Handler articleIndexHandler = new ArticleIndexHandler(articleDao, userDao);
+    private static final Handler articleIndexHandler = new ArticleIndexHandler(articleDao, userDao, commentDao);
+    private static final Handler articleLikeHandler = new LikeHandler(articleDao);
+    private static final Handler commentWriteHandler = new CommentWriteHandler(commentDao);
+    private static final Handler commentPageHandler = new CommentPageHandler();
 
     private static final Handler myPageHandler = new MyPageHandler(userDao);
     private static final Handler profileUpdateHandler = new ProfileUpdateHandler(userDao);
@@ -35,6 +40,10 @@ public class AppConfig {
         mappings.put("/article/write", articleWriteHandler);
         mappings.put("/", articleIndexHandler);
         mappings.put("/index.html", articleIndexHandler);
+        mappings.put("/article/index", articleIndexHandler);
+        mappings.put("/article/like", articleLikeHandler);
+        mappings.put("/comment/write", commentWriteHandler);
+        mappings.put("/comment", commentPageHandler);
 
         mappings.put("/mypage", myPageHandler);
         mappings.put("/user/update", profileUpdateHandler);
@@ -42,7 +51,7 @@ public class AppConfig {
         Map<String, String> staticPages = Map.of(
                 "/registration", Config.REGISTRATION_PAGE,
                 "/login", Config.LOGIN_PAGE,
-                "/article", Config.ARTICLE_PAGE
+                "/article/form", Config.ARTICLE_PAGE
         );
 
         staticPages.forEach((path, filePath) ->

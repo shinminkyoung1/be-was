@@ -58,6 +58,14 @@ public class ArticleWriteHandler implements Handler {
             }
         }
 
+        // 이미지 첨부 여부 검증
+        if (imagePath == null || imagePath.isEmpty()) {
+            logger.warn("Article write failed: Image is missing.");
+            response.addHeader("Set-Cookie", "article_error=no_image; Path=/; Max-Age=5");
+            response.sendRedirect(Config.ARTICLE_PAGE);
+            return;
+        }
+
         Article article = new Article(writer, title, contents, imagePath);
 
         articleDao.insert(article);

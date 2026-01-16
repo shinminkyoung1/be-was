@@ -57,7 +57,7 @@ public class UserDao {
 
     // 정보 갱신
     public void update(User user) {
-        String sql = "UPDATE USERS SET name = ?, email = ?, profileImage = ? WHERE userId = ?";
+        String sql = "UPDATE USERS SET name = ?, email = ?, profileImage = ?, password = ? WHERE userId = ?";
 
         try (Connection connection = ConnectionManager.getConnection();
              PreparedStatement pstmt = connection.prepareStatement(sql)) {
@@ -65,7 +65,8 @@ public class UserDao {
             pstmt.setString(1, user.name());
             pstmt.setString(2, user.email());
             pstmt.setString(3, user.profileImage());
-            pstmt.setString(4, user.userId());
+            pstmt.setString(4, user.password());
+            pstmt.setString(5, user.userId());
 
             pstmt.executeUpdate();
             logger.debug("User updated in DB: {}", user.userId());
@@ -73,5 +74,40 @@ public class UserDao {
         } catch (SQLException e) {
             logger.error("DB Update Error (User): {}", e.getMessage());
         }
+    }
+
+    // 아이디 중복 체크
+    public boolean existsByUserId(String userId) {
+        String sql = "SELECT COUNT(*) FROM USERS WHERE userId = ?";
+        try (Connection connection = ConnectionManager.getConnection();
+            PreparedStatement pstmt = connection.prepareStatement(sql)) {
+
+            pstmt.setString(1, userId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            logger.error("Error checking userId existence", e);
+        }
+        return false;
+    }
+
+    // 닉네임 중복 체크
+    public boolean existsByName(String name) {
+        String sql = "SELECT COUNT(*) FROM USERS WHERE name = ?";
+        try (Connection connection = ConnectionManager.getConnection();
+             PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, name);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            logger.error("Error checking name existence", e);
+        }
+        return false;
     }
 }
