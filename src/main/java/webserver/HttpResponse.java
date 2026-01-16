@@ -121,10 +121,17 @@ public class HttpResponse {
 
     private void processWrite(byte[] body) {
         try {
-            // 헤더 전송
             if (!isCommitted) {
-                writeStatusLine();
-                writeAllHeaders();
+                // 헤더를 먼저 생성하여 전송
+                StringBuilder sb = new StringBuilder();
+                sb.append("HTTP/1.1 ").append(status.toString()).append(Config.CRLF);
+
+                for (Map.Entry<String, String> entry : headers.entrySet()) {
+                    sb.append(entry.getKey()).append(": ").append(entry.getValue()).append(Config.CRLF);
+                }
+                sb.append(Config.CRLF);
+
+                dos.writeBytes(sb.toString());
                 isCommitted = true;
             }
 
@@ -186,15 +193,20 @@ public class HttpResponse {
             // 파일 확장자를 통해 Content-Type 결정
             String fileName = file.getName();
             String extension = "";
-            int i = fileName.lastIndexOf('.');
-            if (i > 0) {
-                extension = fileName.substring(i + 1);
+            int lastIndex = fileName.lastIndexOf('.');
+            if (lastIndex > 0 && lastIndex < fileName.length() - 1) {
+                extension = fileName.substring(lastIndex + 1).toLowerCase(); // 소문자로 통일
             }
 
             String contentType = getContentType(extension);
 
             this.status = HttpStatus.OK;
-            setHttpHeader(contentType, body.length);
+            if (contentType.startsWith("image/")) {
+                addHeader("Content-Type", contentType);
+            } else {
+                addHeader("Content-Type", contentType + ";charset=" + Config.UTF_8);
+            }
+            addHeader("Content-Length", String.valueOf(body.length));
             processWrite(body);
 
         } catch (IOException e) {

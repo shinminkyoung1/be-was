@@ -93,9 +93,6 @@ public class HttpRequest {
             totalRead += read;
         }
 
-        String bodyStr = new String(body, StandardCharsets.UTF_8);
-        logger.debug("Raw Body content: [{}]", bodyStr);
-
         String contentType = headers.get("Content-Type");
 
         if (contentType != null && contentType.contains("multipart/form-data")) {
@@ -109,6 +106,7 @@ public class HttpRequest {
             }
 
         } else {
+            String bodyStr = new String(body, StandardCharsets.UTF_8);
             this.params.putAll(HttpRequestUtils.parseParameters(bodyStr));
         }
     }
