@@ -18,7 +18,8 @@ public class Config {
 
     // h2 database
     // TODO: .gitignore로 관리
-    public static final String DB_URL = "jdbc:h2:~/jwp-was;MODE=MySQL;AUTO_SERVER=TRUE";
+    public static final String EXTERNAL_UPLOAD_PATH = "./was-images";
+    public static final String DB_URL = "jdbc:h2:./db/jwp-was;MODE=MySQL;AUTO_SERVER=TRUE";
     public static final String DB_USER = "apple";
     public static final String DB_PW = "1q2w3e4r";
 }

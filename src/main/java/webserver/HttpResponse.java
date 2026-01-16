@@ -16,6 +16,8 @@ import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 
+import static webserver.config.MimeType.getContentType;
+
 public class HttpResponse {
     public static final Logger logger = LoggerFactory.getLogger(HttpResponse.class);
     private final DataOutputStream dos;
@@ -107,7 +109,7 @@ public class HttpResponse {
                 }
             }
 
-            String contentType = MimeType.getContentType(extension);
+            String contentType = getContentType(extension);
             this.status = HttpStatus.OK;
             setHttpHeader(contentType, body.length);
             processWrite(body);
@@ -168,6 +170,35 @@ public class HttpResponse {
             processWrite(body);
         } catch (Exception e) {
             logger.error("Error while encoding HTML content: {}", e.getMessage());
+            sendError(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public void fileResponseFromExternal(File file) {
+        try {
+            if (!file.exists()) {
+                sendError(HttpStatus.NOT_FOUND);
+                return;
+            }
+
+            byte[] body = Files.readAllBytes(file.toPath());
+
+            // 파일 확장자를 통해 Content-Type 결정
+            String fileName = file.getName();
+            String extension = "";
+            int i = fileName.lastIndexOf('.');
+            if (i > 0) {
+                extension = fileName.substring(i + 1);
+            }
+
+            String contentType = getContentType(extension);
+
+            this.status = HttpStatus.OK;
+            setHttpHeader(contentType, body.length);
+            processWrite(body);
+
+        } catch (IOException e) {
+            logger.error("Error while serving external file {}: {}", file.getName(), e.getMessage());
             sendError(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
