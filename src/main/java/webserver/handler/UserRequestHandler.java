@@ -71,7 +71,9 @@ public class UserRequestHandler implements Handler {
             return;
         }
 
-        User user = new User(userId, password, name, email, null);
+        String defaultProfileImage = "/img/basic_profileImage.svg";
+
+        User user = new User(userId, password, name, email, defaultProfileImage);
         userDao.insert(user);
         logger.debug("Saved User: {}", user);
         response.sendRedirect(Config.LOGIN_PAGE);

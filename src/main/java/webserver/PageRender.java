@@ -49,7 +49,9 @@ public class PageRender {
         StringBuilder sb = new StringBuilder();
         for (Article article : articles) {
             User writer = userDao.findUserById(article.writer());
-            String profileImg = (writer != null) ? writer.profileImage() : "/img/basic_profileImage.svg";
+            String profileImg = (writer != null && writer.profileImage() != null && !writer.profileImage().isEmpty())
+                    ? writer.profileImage()
+                    : "/img/basic_profileImage.svg";
 
             sb.append("<div class=\"post\">");
 
@@ -104,7 +106,7 @@ public class PageRender {
 
             StringBuilder sb = new StringBuilder();
 
-            String profileImage = (writer.profileImage() != null && !writer.profileImage().isEmpty())
+            String profileImage = (writer != null && writer.profileImage() != null && !writer.profileImage().isEmpty())
                     ? writer.profileImage()
                     : "/img/basic_profileImage.svg";
 

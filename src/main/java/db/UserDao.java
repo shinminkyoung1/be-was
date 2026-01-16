@@ -14,7 +14,7 @@ public class UserDao {
 
     // 회원가입
     public void insert(User user) {
-        String sql = "INSERT INTO USERS (userId, name, password, email) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO USERS (userId, name, password, email, profileImage) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection connection = ConnectionManager.getConnection();
              PreparedStatement pstmt = connection.prepareStatement(sql)) {
@@ -23,6 +23,7 @@ public class UserDao {
             pstmt.setString(2, user.name());
             pstmt.setString(3, user.password());
             pstmt.setString(4, user.email());
+            pstmt.setString(5, user.profileImage());
 
             pstmt.executeUpdate();
         } catch (SQLException e) {

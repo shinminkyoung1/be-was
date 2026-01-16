@@ -11,6 +11,8 @@ public class Config {
     public static final String COMMENT_PAGE = "/comment/index.html";
     public static final String UTF_8 = "utf-8";
 
+    public static final String defaultProfileImage = "/img/basic_profileImage.svg";
+
     public static final String CRLF = "\r\n";
     public static final String HEADER_DELIMITER = ": ";
 
